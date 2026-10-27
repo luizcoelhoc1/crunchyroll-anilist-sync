@@ -1,0 +1,23 @@
+__pycache__/
+execucoes/
+erro-inicializacao.txt
+.env
+*.tmp
+
+# Dados locais e ambientes de desenvolvimento
+.venv/
+venv/
+.env.*
+!.env.example
+.pytest_cache/
+*.log
+plano*.json
+revisao.json
+backup-*.json
+anilist-antes.json
+anilist-depois.json
+historico-crunchyroll.json
+diario-aplicacao.jsonl
+verificacao.json
+execucao-interrompida.json
+*.zip
