@@ -27,7 +27,7 @@ Você pode continuar usando o PC durante as consultas. Não precisa abrir F12 ou
 - Veja as abas de apoio: o Crunchyroll pode estar aguardando login ou escolha de perfil; o AniList pode pedir login.
 - Use uma janela normal do Chrome. A extensão não é configurada para navegação anônima.
 - Se o Chrome abrir a página em outro perfil, abra o endereço da página local no perfil em que instalou a extensão.
-- O programa ainda oferece **Colar acesso**, **Digitar token** e importação do histórico como alternativas.
+- Na tela de login, **Login via token** abre **Colar acesso** e **Digitar token**. A importação do histórico também fica disponível antes de conectar. Quando conectado, use **Trocar conta** para voltar a essas opções.
 
 ## Como funciona
 

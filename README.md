@@ -2,7 +2,7 @@
 
 Aplicativo Python para comparar o histórico do Crunchyroll com sua lista do AniList e aplicar atualizações revisadas.
 
-**Versão 1.4.** [Baixar esta versão](https://github.com/luizcoelhoc1/crunchyroll-anilist-sync/releases/tag/v1.4) · [Instruções completas](LEIA-ME.md) · [Conectar pelo Chrome](CONEXAO_CHROME.md)
+**Versão 1.5.** [Baixar esta versão](https://github.com/luizcoelhoc1/crunchyroll-anilist-sync/releases/tag/v1.5) · [Instruções completas](LEIA-ME.md) · [Conectar pelo Chrome](CONEXAO_CHROME.md)
 
 ## Usar no Windows
 

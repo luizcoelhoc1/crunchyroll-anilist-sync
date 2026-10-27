@@ -2,6 +2,10 @@
 
 Ambiente: Windows, Python 3.13.3. O código usa apenas a biblioteca padrão e declara compatibilidade com Python 3.10 ou superior; outras versões não foram executadas nesta validação.
 
+## Atualização 1.5 — controles de login
+
+Alteração de interface. Foram verificados os estados de login com Tkinter oculto e APIs simuladas: painel de token inicialmente recolhido, abertura/fechamento, ocultação após identificar as contas, prévia mantendo os nicks, troca de conta e erro de autenticação permitindo nova tentativa. O fluxo de PNG/JPEG e três lotes parciais da versão anterior foi repetido com sucesso. O motor e a extensão não foram alterados; não houve operações nas contas reais.
+
 ## Atualização 1.4 — contas e revisão por lotes
 
 **85 testes passaram:** os 63 anteriores do motor e 22 novos (14 de revisão/aplicação e 8 de imagens/identificação). O fluxo gráfico foi exercitado com a janela oculta, PNG/JPEG fictícios e APIs simuladas: nicks, dois avatares, marcação, edição de progresso, exclusão/restauração e três lotes. Foram conferidos a preservação de campos pessoais, o progresso restante retornando desmarcado e as pastas separadas por lote. A exportação respeita a seleção; aplicar revisao.json diretamente é recusado.

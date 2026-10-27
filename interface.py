@@ -27,6 +27,8 @@ class Window:
         self.auth = {"cr": "", "al": ""}
         self.plan = None
         self.busy = False
+        self.logged_in = False
+        self.token_mode = False
         self.bridge = None
         self.closing = False
         self.folder = None
@@ -48,28 +50,36 @@ class Window:
         ttk.Label(outer, text="Crunchyroll → AniList", font=("Segoe UI", 21, "bold")).pack(anchor="w")
         ttk.Label(outer, text="Histórico por API · temporadas e especiais separados · notas e avanços preservados",
                   font=("Segoe UI", 10)).pack(anchor="w", pady=(3, 16))
-        auth_frame = ttk.LabelFrame(outer, text="1. Acessos temporários", padding=12)
+        self.auth_frame = ttk.LabelFrame(outer, text="Login", padding=12)
+        auth_frame = self.auth_frame
         auth_frame.pack(fill="x")
         self.auth_labels = {}
         self.option_widgets = []
-        auto_row = ttk.Frame(auth_frame)
-        auto_row.pack(fill="x", pady=(0, 10))
+        self.login_panel = ttk.Frame(auth_frame)
+        self.login_panel.pack(fill="x")
+        auto_row = ttk.Frame(self.login_panel)
+        auto_row.pack(fill="x", pady=(0, 6))
         self.connect_button = ttk.Button(auto_row, text="Conectar pelo Chrome", command=self.connect_chrome)
         self.connect_button.pack(side="left")
+        self.token_login_button = ttk.Button(auto_row, text="Login via token", command=self.toggle_token_login)
+        self.token_login_button.pack(side="left", padx=8)
         install_button = ttk.Button(auto_row, text="Instalar extensão (uma vez)", command=self.install_extension)
-        install_button.pack(side="left", padx=8)
-        self.option_widgets.append(install_button)
-        ttk.Label(auto_row, text="Usa o login já aberto no navegador").pack(side="left", padx=8)
+        install_button.pack(side="left")
+        self.option_widgets.extend((install_button, self.token_login_button))
+        self.token_panel = ttk.LabelFrame(self.login_panel, text="Login via token", padding=10)
+        ttk.Label(self.token_panel,
+                  text="Cole a requisição copiada do navegador ou digite o token de cada serviço.").pack(anchor="w", pady=(0, 6))
         for service, name in (("cr", "Crunchyroll"), ("al", "AniList")):
-            row = ttk.Frame(auth_frame)
+            row = ttk.Frame(self.token_panel)
             row.pack(fill="x", pady=3)
             ttk.Label(row, text=name, width=15).pack(side="left")
             ttk.Button(row, text="Colar acesso", command=lambda s=service: self.paste(s)).pack(side="left")
             ttk.Button(row, text="Digitar token", command=lambda s=service: self.token_dialog(s)).pack(side="left", padx=5)
             self.auth_labels[service] = ttk.Label(row, text="Não carregado")
             self.auth_labels[service].pack(side="left", padx=10)
-        opts = ttk.Frame(auth_frame)
-        opts.pack(fill="x", pady=(10, 0))
+        self.accounts_panel = ttk.Frame(auth_frame)
+        opts = ttk.Frame(self.accounts_panel)
+        opts.pack(fill="x")
         opts.columnconfigure((0, 1), weight=1, uniform="accounts")
         self.avatar_canvases = {}
         for index, (service, title, variable) in enumerate((
@@ -82,7 +92,13 @@ class Window:
             ttk.Label(card, textvariable=variable, font=("Segoe UI", 11, "bold"),
                       wraplength=350).pack(side="left", fill="x", expand=True)
             self.reset_avatar(service)
-        source = ttk.Frame(auth_frame)
+        account_actions = ttk.Frame(self.accounts_panel)
+        account_actions.pack(fill="x", pady=(6, 0))
+        self.logout_button = ttk.Button(account_actions, text="Trocar conta", command=self.logout)
+        self.logout_button.pack(side="right")
+        self.option_widgets.append(self.logout_button)
+        self.source_panel = ttk.Frame(self.login_panel)
+        source = self.source_panel
         source.pack(fill="x", pady=(8, 0))
         ttk.Button(source, text="Importar histórico JSON", command=self.choose_file).pack(side="left")
         ttk.Label(source, textvariable=self.history_file).pack(side="left", padx=8)
@@ -116,7 +132,47 @@ class Window:
         notebook.add(self.logs, text="Progresso")
         self.history_file.trace_add("write", lambda *_: self.invalidate())
         root.protocol("WM_DELETE_WINDOW", self.close)
+        self.refresh_login_ui()
         self.drain_timer = root.after(100, self.drain)
+
+    def refresh_login_ui(self):
+        self.token_panel.pack_forget()
+        if self.logged_in:
+            self.login_panel.pack_forget()
+            self.accounts_panel.pack(fill="x")
+            self.auth_frame.configure(text="Contas conectadas")
+        else:
+            self.accounts_panel.pack_forget()
+            self.login_panel.pack(fill="x")
+            self.auth_frame.configure(text="Login")
+            if self.token_mode:
+                self.token_panel.pack(fill="x", pady=(6, 0), before=self.source_panel)
+        self.token_login_button.configure(text="Ocultar login via token" if self.token_mode else "Login via token")
+        self.preview_button.configure(
+            state="normal" if self.logged_in and not self.busy and not self.bridge else "disabled")
+
+    def set_logged_in(self, value):
+        self.logged_in = value
+        if value:
+            self.token_mode = False
+        self.refresh_login_ui()
+
+    def toggle_token_login(self):
+        if self.busy or self.bridge or self.logged_in:
+            return
+        self.token_mode = not self.token_mode
+        self.refresh_login_ui()
+
+    def logout(self):
+        if self.busy:
+            return
+        self.persist_review()
+        if self.bridge:
+            self.end_connection()
+        self.folder = None
+        self.history_file.set("")
+        self.clear_access()
+        self.status.set("Escolha como entrar: Chrome ou Login via token.")
 
     def invalidate(self):
         self.plan = None
@@ -139,6 +195,7 @@ class Window:
         self.profile.set(profile_label(cr_profile))
         self.request_avatar("al", user)
         self.request_avatar("cr", cr_profile)
+        self.set_logged_in(True)
 
     def reset_avatar(self, service):
         canvas = self.avatar_canvases[service]
@@ -226,6 +283,8 @@ class Window:
             self.status.set("Não foi possível salvar a revisão. Confira a pasta antes de aplicar.")
 
     def clear_access(self):
+        self.token_mode = False
+        self.set_logged_in(False)
         self.clear_identities()
         self.auth = {"cr": "", "al": ""}
         for label in self.auth_labels.values():
@@ -291,7 +350,7 @@ class Window:
                             "Pasta da extensão:\n" + str(folder))
 
     def paste(self, service):
-        if self.busy:
+        if self.busy or self.logged_in:
             return
         if self.bridge:
             self.end_connection(clear=True)
@@ -310,7 +369,7 @@ class Window:
         self.maybe_identify_accounts()
 
     def token_dialog(self, service):
-        if self.busy:
+        if self.busy or self.logged_in:
             return
         if self.bridge:
             self.end_connection(clear=True)
@@ -356,7 +415,7 @@ class Window:
             try:
                 self.q.put(("done", callback, job()))
             except Exception as exc:
-                self.q.put(("error", str(exc)))
+                self.q.put(("error", str(exc), exc))
         threading.Thread(target=work, daemon=False).start()
 
     def preview(self):
@@ -367,7 +426,8 @@ class Window:
             return
         auth = dict(self.auth)
         history = self.history_file.get()
-        self.clear_identities()
+        if not self.logged_in:
+            self.clear_identities()
         folder = new_run_folder()
         self.folder = folder
         self.invalidate()
@@ -478,7 +538,7 @@ class Window:
                     for widget in self.option_widgets:
                         widget.configure(state="normal")
                     self.bar.stop()
-                    self.preview_button.configure(state="normal")
+                    self.preview_button.configure(state="normal" if self.logged_in else "disabled")
                     self.cancel_button.configure(state="disabled")
                     if self.closing:
                         self.destroy_root()
@@ -486,6 +546,10 @@ class Window:
                     if event[0] == "done":
                         event[1](event[2])
                     else:
+                        error = event[2] if len(event) > 2 else None
+                        if self.operation == "identity" or getattr(error, "status", None) in (401, 403):
+                            self.clear_identities()
+                            self.set_logged_in(False)
                         self.invalidate()
                         self.status.set("Execução interrompida. Gere outra prévia para continuar."
                                         if self.operation == "apply" else "Não foi possível concluir a consulta.")

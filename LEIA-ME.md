@@ -1,4 +1,6 @@
-# Crunchyroll → AniList — Python 1.4
+# Crunchyroll → AniList — Python 1.5
+
+**Login simplificado:** colar/digitar acesso fica dentro de **Login via token**. Depois de conectar, os controles de login são ocultados e aparecem os cartões das contas com **Trocar conta**. Veja **ATUALIZACAO_1_5.md**.
 
 **Novo:** cartões com nicks e avatares das contas, seleção de itens, edição de alvo e exclusão local do plano. É possível aplicar por lotes e continuar com o restante na mesma prévia. Veja **ATUALIZACAO_1_4.md**.
 
@@ -25,6 +27,8 @@ Depois, basta clicar em **Conectar pelo Chrome**. A extensão abre duas abas de 
 Veja **CONEXAO_CHROME.md** para o passo a passo e funcionamento da conexão local. Não precisa copiar tokens manualmente. O botão se transforma em **Cancelar conexão** enquanto aguarda; a conexão expira em 3 minutos e fecha após receber os dois acessos. Os acessos continuam só em memória.
 
 ## Fornecer os acessos manualmente (alternativa)
+
+Na tela de login, clique em **Login via token** para abrir os botões **Colar acesso** e **Digitar token**. Essas opções ficam recolhidas por padrão e desaparecem quando as contas são conectadas.
 
 Você também pode copiar uma requisição autenticada de cada serviço. Cole **diretamente na janela do programa**; não envie esses dados por mensagem.
 
@@ -64,7 +68,7 @@ Os acessos ficam em memória e não são gravados nos backups, relatórios ou ma
 
 Durante a consulta e a aplicação, você pode usar outros programas. Evite editar a mesma lista do AniList enquanto a aplicação estiver em andamento. A lista é relida antes da aplicação; se uma entrada a alterar mudou desde a prévia, o programa pede uma prévia nova.
 
-**Importar histórico JSON** permite usar uma exportação completa que você já tenha, inclusive o arquivo de histórico coletado na conversa anterior. Nesse caso não precisa do acesso ao Crunchyroll; ainda precisa do acesso ao AniList. **Usar API** volta à coleta online.
+Na tela de login, **Importar histórico JSON** permite usar uma exportação completa que você já tenha, inclusive o arquivo de histórico coletado na conversa anterior. Nesse caso não precisa do acesso ao Crunchyroll; ainda precisa do acesso ao AniList. **Usar API** volta à coleta online.
 
 ## O que é considerado
 
