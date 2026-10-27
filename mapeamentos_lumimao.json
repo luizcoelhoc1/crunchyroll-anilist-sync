@@ -1,0 +1,1650 @@
+{
+  "schema_version": 1,
+  "description": "Mapeamentos conferidos para o historico Lumimao em 26/10/2026. IDs de catalogo publicos; nenhuma credencial.",
+  "groups": {
+    "G3KHEVDJ7|S00384044": {
+      "title": "The Apothecary Diaries",
+      "season": "Season 3",
+      "rules": [
+        {
+          "lo": 49,
+          "hi": 60,
+          "offset": 48,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 195516
+        }
+      ]
+    },
+    "GT00378072|S00378073": {
+      "title": "Hello, I am a Witch and my Crush Wants me to Make a Love Potion!",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 207191
+        }
+      ]
+    },
+    "GNVHKN933|S00319208": {
+      "title": "The 100 Girlfriends Who Really, Really, Really, Really, REALLY Love You",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 162694
+        }
+      ]
+    },
+    "GT00365624|S00376760": {
+      "title": "You and I Are Polar Opposites",
+      "season": "Season 2",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 210031
+        }
+      ]
+    },
+    "GT00371851|S00371852": {
+      "title": "LIAR GAME",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 197754
+        }
+      ]
+    },
+    "GRGG9798R|S00371932": {
+      "title": "Re:ZERO -Starting Life in Another World-",
+      "season": "Season 4",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 189046
+        }
+      ]
+    },
+    "G24H1N3MP|S00374452": {
+      "title": "Mushoku Tensei: Jobless Reincarnation",
+      "season": "Season 3",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 178789
+        }
+      ]
+    },
+    "GT00378116|S00378131": {
+      "title": "Smoking Behind the Supermarket with You",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 196187
+        }
+      ]
+    },
+    "GR9P57W96|S00380130": {
+      "title": "Saga of Tanya the Evil",
+      "season": "Season 2",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 135865
+        }
+      ]
+    },
+    "GT00371881|S00371882": {
+      "title": "Though I Am an Inept Villainess",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 188139
+        }
+      ]
+    },
+    "GT00362335|S00362336": {
+      "title": "Yano-kun's Ordinary Days",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 183965
+        }
+      ]
+    },
+    "GT00378102|S00378103": {
+      "title": "Rich Girl Caretaker: I'm Secretly the Caregiver of the Most Popular Girl in This Rich Kid School",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 201514
+        }
+      ]
+    },
+    "G9VHN91DJ|S00371931": {
+      "title": "The Angel Next Door Spoils Me Rotten",
+      "season": "The Angel Next Door Spoils Me Rotten2",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 170019
+        }
+      ]
+    },
+    "GT00378063|S00378064": {
+      "title": "Grow Up Show",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 196017
+        }
+      ]
+    },
+    "GT00371926|S00371927": {
+      "title": "Please Excuse My Younger Brothers",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 203490
+        }
+      ]
+    },
+    "GT00378059|S00378060": {
+      "title": "Goodbye, Lara",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 177637
+        }
+      ]
+    },
+    "GT00362362|S00362363": {
+      "title": "Young Ladies Don't Play Fighting Games",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 128757
+        }
+      ]
+    },
+    "GT00378078|S00378079": {
+      "title": "Jaadugar: A Witch in Mongolia",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 190569
+        }
+      ]
+    },
+    "GR79PWJ16|S00020864": {
+      "title": "HINAMATSURI",
+      "season": "HINAMATSURI",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 100077
+        }
+      ]
+    },
+    "GT00378126|S00378142": {
+      "title": "Victoria of Many Faces",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 198709
+        }
+      ]
+    },
+    "GT00365624|S00365625": {
+      "title": "You and I Are Polar Opposites",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 184951
+        }
+      ]
+    },
+    "GT00374354|S00374355": {
+      "title": "I Want to Love You Till Your Dying Day",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 187260
+        }
+      ]
+    },
+    "GT00378087|S00378088": {
+      "title": "Love Unseen Beneath the Clear Night Sky",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 202269
+        }
+      ]
+    },
+    "GT00371656|S00371657": {
+      "title": "Draw This, Then Die",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 188525
+        }
+      ]
+    },
+    "GYK541EPR|S00314264": {
+      "title": "A Place Further Than the Universe",
+      "season": "A Place Further Than the Universe",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 99426
+        }
+      ]
+    },
+    "GT00371779|S00371780": {
+      "title": "I Want to End this Love Game",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 194393
+        }
+      ]
+    },
+    "GT00371857|S00371858": {
+      "title": "MARRIAGETOXIN",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 199547
+        }
+      ]
+    },
+    "G6QWV3976|S00371933": {
+      "title": "Rent-a-Girlfriend",
+      "season": "Season 5",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 199029
+        }
+      ]
+    },
+    "GT00258001|S00258022": {
+      "title": "Witch Hat Atelier",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 147105
+        }
+      ]
+    },
+    "GY8V11X7Y|S00089874": {
+      "title": "Fate/stay night [Unlimited Blade Works]",
+      "season": "Fate/stay night [Unlimited Blade Works]",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 19603
+        }
+      ]
+    },
+    "G9VHN9P7W|S00096373": {
+      "title": "Gleipnir",
+      "season": "Gleipnir",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 108241
+        }
+      ]
+    },
+    "GT00371630|S00371631": {
+      "title": "Daemons of the Shadow Realm",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 195600
+        }
+      ]
+    },
+    "GW4HM7WK9|S00340312": {
+      "title": "Wistoria: Wand and Sword",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 174576
+        }
+      ]
+    },
+    "GXJHM372Z|S00107105": {
+      "title": "WONDER EGG PRIORITY",
+      "season": "WONDER EGG PRIORITY",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 124845
+        }
+      ]
+    },
+    "GRJ0J828Y|S00369226": {
+      "title": "Kaguya-sama: Love is War",
+      "season": "Kaguya-sama: Love Is War -Stairway to Adulthood-",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 194884
+        }
+      ]
+    },
+    "GRJ0J828Y|M": {
+      "title": "Kaguya-sama: Love is War",
+      "season": "Kaguya-sama: Love is War: Season 3.5: The First Kiss That Never Ends - Episodic Cut",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 151384
+        }
+      ]
+    },
+    "GRJ0J828Y|S00198819": {
+      "title": "Kaguya-sama: Love is War",
+      "season": "Kaguya-sama: Love is War -Ultra Romantic-",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 125367
+        }
+      ]
+    },
+    "G9VHN9Q3G|S00354665": {
+      "title": "Secrets of the Silent Witch",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 179966
+        }
+      ]
+    },
+    "G9VHN91DJ|S00258470": {
+      "title": "The Angel Next Door Spoils Me Rotten",
+      "season": "The Angel Next Door Spoils Me Rotten",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 143338
+        }
+      ]
+    },
+    "GEXH3W2EZ|S00353733": {
+      "title": "Lord of Mysteries",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 137667
+        }
+      ]
+    },
+    "GNVHKN9VK|S00354237": {
+      "title": "Uglymug, Epicfighter",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 184575
+        }
+      ]
+    },
+    "G5PHNM9Q0|S00353972": {
+      "title": "Scooped Up by an S-Rank Adventurer!",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 179885
+        }
+      ]
+    },
+    "G3KHEVDJ7|S00325114": {
+      "title": "The Apothecary Diaries",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 161645
+        }
+      ]
+    },
+    "GEXH3W28K|S00338713": {
+      "title": "MAYONAKA PUNCH",
+      "season": "Season 01",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 174044
+        }
+      ]
+    },
+    "G69PZ5PDY|S00003260": {
+      "title": "Overlord",
+      "season": "Overlord",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 20832
+        }
+      ]
+    },
+    "G69PZ5PDY|S00019956": {
+      "title": "Overlord",
+      "season": "Overlord II",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 98437
+        }
+      ]
+    },
+    "G69PZ5PDY|S00253417": {
+      "title": "Overlord",
+      "season": "Overlord IV",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 133844
+        }
+      ]
+    },
+    "G69PZ5PDY|S00019957": {
+      "title": "Overlord",
+      "season": "Overlord III",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 101474
+        }
+      ]
+    },
+    "GY79P41KR|S00337401": {
+      "title": "Sword Art Online Alternative: Gun Gale Online",
+      "season": "Sword Art Online Alternative: Gun Gale Online Season 2",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 167141
+        }
+      ]
+    },
+    "GY79P41KR|S00116613": {
+      "title": "Sword Art Online Alternative: Gun Gale Online",
+      "season": "Sword Art Online Alternative: Gun Gale Online",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 100183
+        }
+      ]
+    },
+    "GRVN8MNQY|S00371650": {
+      "title": "Classroom of the Elite",
+      "season": "4th Season: Second Year, First Semester",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 180745
+        }
+      ]
+    },
+    "GRVN8MNQY|S00002833": {
+      "title": "Classroom of the Elite",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 98659
+        }
+      ]
+    },
+    "GRVN8MNQY|S00253411": {
+      "title": "Classroom of the Elite",
+      "season": "Season 2",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 145545
+        }
+      ]
+    },
+    "GRVN8MNQY|S00327130": {
+      "title": "Classroom of the Elite",
+      "season": "Season 3",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 146066
+        }
+      ]
+    },
+    "G65VP5ZK6|S00194599": {
+      "title": "Polar Bear Cafe",
+      "season": "Polar Bear Cafe",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 12815
+        }
+      ]
+    },
+    "GYE5K3GQR|S00111876": {
+      "title": "Konosuba - God's Blessing on This Wonderful World!",
+      "season": "KONOSUBA -God's Blessing on This Wonderful World!",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 21699
+        }
+      ]
+    },
+    "GYE5K3GQR|S00111870": {
+      "title": "Konosuba - God's Blessing on This Wonderful World!",
+      "season": "KONOSUBA -God's Blessing on This Wonderful World!",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 21202
+        }
+      ]
+    },
+    "GKEH2G08K|S00338586": {
+      "title": "Pseudo Harem",
+      "season": "Pseudo Harem",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 163623
+        }
+      ]
+    },
+    "GMEHME7W1|S00344480": {
+      "title": "Yakuza Fiancé: Raise wa Tanin ga Ii",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 170468
+        }
+      ]
+    },
+    "G6PP7W7V6|S00170681": {
+      "title": "With a Dog AND a Cat, Every Day is Fun",
+      "season": "With a Dog AND a Cat, Every Day is Fun",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 116700
+        }
+      ]
+    },
+    "GT00365613|S00365614": {
+      "title": "The Villainess Is Adored by the Prince of the Neighbor Kingdom",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 195518
+        }
+      ]
+    },
+    "GT00356809|S00356810": {
+      "title": "Sentenced to Be a Hero",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 167152
+        }
+      ]
+    },
+    "GG5H5XMWV|S00363224": {
+      "title": "To Your Eternity",
+      "season": "Season 3",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 162669
+        }
+      ]
+    },
+    "GG5H5XQX4|S00365545": {
+      "title": "Frieren: Beyond Journey's End",
+      "season": "Season 2",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 182255
+        }
+      ]
+    },
+    "GT00366791|S00366794": {
+      "title": "OSHI NO KO",
+      "season": "Season 3",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 182587
+        }
+      ]
+    },
+    "G6497Z43Y|S00003186": {
+      "title": "Miss Kobayashi's Dragon Maid",
+      "season": "Miss Kobayashi's Dragon Maid",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 21776
+        }
+      ]
+    },
+    "GKEH2G0X4|S00349673": {
+      "title": "Takopi's Original Sin",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 185407
+        }
+      ]
+    },
+    "GG5H5XQ0D|S00350677": {
+      "title": "DAN DA DAN",
+      "season": "Season 2",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 185660
+        }
+      ]
+    },
+    "G6QWV3976|S00353933": {
+      "title": "Rent-a-Girlfriend",
+      "season": "Season 4",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 179344
+        }
+      ]
+    },
+    "GQWH0M9N8|S00353773": {
+      "title": "My Dress-Up Darling",
+      "season": "Season 2",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 154768
+        }
+      ]
+    },
+    "GXJHM39MP|S00352163": {
+      "title": "A Couple of Cuckoos",
+      "season": "A Couple of Cuckoos Season2",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 179828
+        }
+      ]
+    },
+    "GXJHM39MP|S00253409": {
+      "title": "A Couple of Cuckoos",
+      "season": "A Couple of Cuckoos",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 132052
+        }
+      ]
+    },
+    "GQWH0M9N8|S00194496": {
+      "title": "My Dress-Up Darling",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 132405
+        }
+      ]
+    },
+    "G5PHNM9P0|S00351402": {
+      "title": "WITCH WATCH",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 180367
+        }
+      ]
+    },
+    "GRGG9798R|S00345476": {
+      "title": "Re:ZERO -Starting Life in Another World-",
+      "season": "Season 3",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 163134
+        }
+      ]
+    },
+    "GMEHME4M4|S00113971": {
+      "title": "Vivy -Fluorite Eye's Song-",
+      "season": "Vivy -Fluorite Eye's Song-",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 128546
+        }
+      ]
+    },
+    "G6JQXP48R|S00019997": {
+      "title": "Cardcaptor Sakura: Clear Card",
+      "season": "Cardcaptor Sakura: Clear Card",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 97881
+        }
+      ]
+    },
+    "GY8VM8MWY|S00111803": {
+      "title": "Haikyu!!",
+      "season": "HAIKYU!!",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 20464
+        }
+      ]
+    },
+    "G1XHJV0XM|S00334587": {
+      "title": "Alya Sometimes Hides Her Feelings in Russian",
+      "season": "Alya Sometimes Hides Her Feelings in Russian",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 162804
+        }
+      ]
+    },
+    "GG5H5XQX4|S00324919": {
+      "title": "Frieren: Beyond Journey's End",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 154587
+        }
+      ]
+    },
+    "GRE59JGX6|S1": {
+      "title": "Assassination Classroom",
+      "season": "Assassination Classroom: Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 20755
+        }
+      ]
+    },
+    "GY5P48XEY|S00336261": {
+      "title": "Demon Slayer: Kimetsu no Yaiba",
+      "season": "Demon Slayer: Kimetsu no Yaiba Hashira Training Arc",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 166240
+        }
+      ]
+    },
+    "GW4HM7W99|S00334548": {
+      "title": "Grandpa and Grandma Turn Young Again",
+      "season": "Grandpa and Grandma Turn Young Again",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 168138
+        }
+      ]
+    },
+    "GJ0H7Q5ZJ|S00198812": {
+      "title": "Hell's Paradise",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": null,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 128893
+        }
+      ]
+    },
+    "G24H1N3MP|S00102680": {
+      "title": "Mushoku Tensei: Jobless Reincarnation",
+      "season": "Season 1",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": 11,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 108465
+        },
+        {
+          "lo": 12,
+          "hi": 23,
+          "offset": 11,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 127720
+        },
+        {
+          "lo": 1,
+          "hi": 1,
+          "offset": 0,
+          "mode": "one",
+          "title": "Eris the Goblin Slayer",
+          "mediaId": 141534
+        }
+      ]
+    },
+    "GW4HM7WK9|S00375172": {
+      "title": "Wistoria: Wand and Sword",
+      "season": "Season 2",
+      "rules": [
+        {
+          "lo": 13,
+          "hi": 24,
+          "offset": 12,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 182300
+        }
+      ]
+    },
+    "GYEXQKJG6|S00346868": {
+      "title": "Dr. STONE",
+      "season": "Dr. STONE SCIENCE FUTURE",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": 12,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 172019
+        },
+        {
+          "lo": 13,
+          "hi": 24,
+          "offset": 12,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 189117
+        },
+        {
+          "lo": 25,
+          "hi": 37,
+          "offset": 24,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 199221
+        }
+      ]
+    },
+    "G6NQ5DWZ6|S00355339": {
+      "title": "My Hero Academia",
+      "season": "FINAL SEASON",
+      "rules": [
+        {
+          "lo": 160,
+          "hi": 170,
+          "offset": 159,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 182896
+        },
+        {
+          "lo": 1,
+          "hi": 1,
+          "offset": 0,
+          "mode": "one",
+          "title": "^More$",
+          "mediaId": 204356
+        }
+      ]
+    },
+    "G6NQ5DWZ6|S00335713": {
+      "title": "My Hero Academia",
+      "season": "Season 7",
+      "rules": [
+        {
+          "lo": 139,
+          "hi": 159,
+          "offset": 138,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 163139
+        }
+      ]
+    },
+    "GYZJ43JMR|S00336451": {
+      "title": "That Time I Got Reincarnated as a Slime",
+      "season": "Season 3",
+      "rules": [
+        {
+          "lo": 49,
+          "hi": 72,
+          "offset": 48,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 156822
+        }
+      ]
+    },
+    "GYEXQKJG6|S00253419": {
+      "title": "Dr. STONE",
+      "season": "Dr. STONE Season 3",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": 11,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 131518
+        },
+        {
+          "lo": 12,
+          "hi": 22,
+          "offset": 11,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 162670
+        }
+      ]
+    },
+    "G3KHEVDJ7|S00348141": {
+      "title": "The Apothecary Diaries",
+      "season": "Season 2",
+      "rules": [
+        {
+          "lo": 25,
+          "hi": 48,
+          "offset": 24,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 176301
+        }
+      ]
+    },
+    "GYE5K3GQR|S00335673": {
+      "title": "Konosuba - God's Blessing on This Wonderful World!",
+      "season": "KONOSUBA -God's Blessing on This Wonderful World! 3",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": 11,
+          "offset": 0,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 136804
+        },
+        {
+          "lo": 12,
+          "hi": 13,
+          "offset": 11,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 181244
+        }
+      ]
+    },
+    "GYE5K3GQR|S": {
+      "title": "Konosuba - God's Blessing on This Wonderful World!",
+      "season": "OVAs (Spanish Dub)",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": 1,
+          "offset": 0,
+          "mode": "one",
+          "title": "Choker",
+          "mediaId": 21574
+        },
+        {
+          "lo": 1,
+          "hi": 1,
+          "offset": 0,
+          "mode": "one",
+          "title": "Works of Art",
+          "mediaId": 97996
+        }
+      ]
+    },
+    "G24H1N3MP|S00267520": {
+      "title": "Mushoku Tensei: Jobless Reincarnation",
+      "season": "Season 2",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": 13,
+          "offset": 0,
+          "mode": "seq",
+          "title": null,
+          "mediaId": 146065
+        },
+        {
+          "lo": 14,
+          "hi": 25,
+          "offset": 13,
+          "mode": "seq",
+          "title": null,
+          "mediaId": 166873
+        }
+      ]
+    },
+    "GR751KNZY|S00363463": {
+      "title": "Attack on Titan",
+      "season": "Attack on Titan Final Season",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": 1,
+          "offset": 0,
+          "mode": "one",
+          "title": "Special 1$",
+          "mediaId": 146984
+        },
+        {
+          "lo": 1,
+          "hi": 1,
+          "offset": 0,
+          "mode": "one",
+          "title": "Special 2$",
+          "mediaId": 162314
+        }
+      ]
+    },
+    "GRDV0019R|S00365546": {
+      "title": "JUJUTSU KAISEN",
+      "season": "JUJUTSU KAISEN Season 3",
+      "rules": [
+        {
+          "lo": 48,
+          "hi": 59,
+          "offset": 47,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 172463
+        }
+      ]
+    },
+    "GRDV0019R|S00267967": {
+      "title": "JUJUTSU KAISEN",
+      "season": "JUJUTSU KAISEN Season 2",
+      "rules": [
+        {
+          "lo": 25,
+          "hi": 47,
+          "offset": 24,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 145064
+        }
+      ]
+    },
+    "G4PH0WXVJ|S00364995": {
+      "title": "SPY x FAMILY",
+      "season": "Season 3",
+      "rules": [
+        {
+          "lo": 38,
+          "hi": 50,
+          "offset": 37,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 177937
+        }
+      ]
+    },
+    "G4PH0WEKE|S00344677": {
+      "title": "BLUE LOCK",
+      "season": "Season 2",
+      "rules": [
+        {
+          "lo": 25,
+          "hi": 38,
+          "offset": 24,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 163146
+        }
+      ]
+    },
+    "GDKHZEJ0K|S00346859": {
+      "title": "Solo Leveling",
+      "season": "Solo Leveling Season 2 -Arise from the Shadow- (Korean Version)",
+      "rules": [
+        {
+          "lo": 13,
+          "hi": 25,
+          "offset": 12,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 176496
+        }
+      ]
+    },
+    "G79H23V0G|S00332324": {
+      "title": "The Duke of Death and His Maid",
+      "season": "The Duke of Death and His Maid Season 3",
+      "rules": [
+        {
+          "lo": 25,
+          "hi": 36,
+          "offset": 24,
+          "mode": "ep",
+          "title": null,
+          "mediaId": 169584
+        }
+      ]
+    },
+    "G8DHV7809|E00351144A00351145": {
+      "title": "Demon Slayer: Kimetsu no Yaiba Infinity Castle I",
+      "season": "Demon Slayer: Kimetsu no Yaiba Infinity Castle I",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": 1,
+          "offset": 0,
+          "mode": "one",
+          "title": null,
+          "mediaId": 178788
+        }
+      ]
+    },
+    "G6NQ5DWZ6|S00379882": {
+      "title": "My Hero Academia",
+      "season": "I am a Hero too",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": 1,
+          "offset": 0,
+          "mode": "one",
+          "title": null,
+          "mediaId": 211711
+        }
+      ]
+    },
+    "GNVHKN92K|E00351495A00351496": {
+      "title": "CHAINSAW MAN – THE MOVIE: REZE ARC",
+      "season": "CHAINSAW MAN – THE MOVIE: REZE ARC",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": 1,
+          "offset": 0,
+          "mode": "one",
+          "title": null,
+          "mediaId": 171627
+        }
+      ]
+    },
+    "GMTE00334078|E00334078A0033407": {
+      "title": "OVERLORD: The Sacred Kingdom",
+      "season": "OVERLORD: The Sacred Kingdom",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": 1,
+          "offset": 0,
+          "mode": "one",
+          "title": null,
+          "mediaId": 133845
+        }
+      ]
+    },
+    "GMTE00096362|E00096362A0022706": {
+      "title": "Overlord: The Dark Hero",
+      "season": "Overlord: The Dark Hero",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": 1,
+          "offset": 0,
+          "mode": "one",
+          "title": null,
+          "mediaId": 98874
+        }
+      ]
+    },
+    "GMTE00096361|E00096361A0022706": {
+      "title": "Overlord: The Undead King",
+      "season": "Overlord: The Undead King",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": 1,
+          "offset": 0,
+          "mode": "one",
+          "title": null,
+          "mediaId": 98873
+        }
+      ]
+    },
+    "GYE5K3GQR|M": {
+      "title": "Konosuba - God's Blessing on This Wonderful World!",
+      "season": "Legend of Crimson (English Dub)",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": 1,
+          "offset": 0,
+          "mode": "one",
+          "title": null,
+          "mediaId": 102976
+        }
+      ]
+    },
+    "GMTE00335490|E00335490A0033549": {
+      "title": "SPY x FAMILY CODE: White",
+      "season": "SPY x FAMILY CODE: White",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": 1,
+          "offset": 0,
+          "mode": "one",
+          "title": null,
+          "mediaId": 158928
+        }
+      ]
+    },
+    "GMTE00019939|E00019939A0012013": {
+      "title": "Cardcaptor Sakura: Clear Card Prologue – Sakura and the Two Bears",
+      "season": "Cardcaptor Sakura: Clear Card Prologue – Sakura and the Two Bears",
+      "rules": [
+        {
+          "lo": 1,
+          "hi": 1,
+          "offset": 0,
+          "mode": "one",
+          "title": null,
+          "mediaId": 98554
+        }
+      ]
+    },
+    "GYEXQKJG6|S00369402": {
+      "title": "Dr. STONE",
+      "season": "Extras",
+      "skip_reason": "Documentario de bastidores; sem entrada de anime confirmada."
+    },
+    "GRGG9798R|S00171623": {
+      "title": "Re:ZERO -Starting Life in Another World-",
+      "season": "Season 1: Director's Cut",
+      "skip_reason": "Edicao Director Cut: nao duplicar nem converter automaticamente a numeracao da temporada original."
+    }
+  }
+}
