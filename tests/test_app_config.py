@@ -77,6 +77,21 @@ class EnvConfigTests(unittest.TestCase):
         self.assertEqual(self.load(environment).client_secret, "outside-secret")
         self.assertEqual(environment, {"ANILIST_CLIENT_SECRET": "outside-secret"})
 
+    def test_public_service_configuration_works_without_a_secret(self):
+        (self.root / "auth_config.json").write_text(json.dumps({"anilist_client_id": "55193",
+            "anilist_auth_service_url": "https://auth.example.workers.dev"}))
+        config = self.load()
+        self.assertIsNone(config.client_secret)
+        self.assertEqual(config.auth_service_url, "https://auth.example.workers.dev")
+        self.assertIsNone(self.load({"ANILIST_AUTH_SERVICE_URL": ""}).auth_service_url)
+
+    def test_service_url_obeys_environment_then_dotenv_then_public_config(self):
+        (self.root / "auth_config.json").write_text(json.dumps({"anilist_auth_service_url": "https://public.example"}))
+        self.env("ANILIST_AUTH_SERVICE_URL=https://file.example\n")
+        self.assertEqual(self.load().auth_service_url, "https://file.example")
+        self.assertEqual(self.load({"ANILIST_AUTH_SERVICE_URL": "https://env.example"}).auth_service_url,
+                         "https://env.example")
+
 
 if __name__ == "__main__":
     unittest.main()

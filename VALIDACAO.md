@@ -1,5 +1,13 @@
 # Validação — 02/11/2026
 
+## Serviço público de autorização AniList
+
+**258 testes Python e 14 testes JavaScript passaram**, sem ignorados. O pacote do Worker também passou em `wrangler deploy --dry-run` com o binding de limite de tentativas. O serviço mantém o Client Secret no Cloudflare, assina tentativas de dez minutos e exige a prova gerada no app antes da troca do código no endpoint fixo do AniList. O retorno local e as sessões protegidas existentes são preservados.
+
+Os novos testes cobrem retorno HTTP local real com prova, ausência do segredo nas requisições do app, configuração pública sem segredo, validação de identidade antes de salvar, URL HTTPS obrigatória, retorno restrito a loopback, adulteração/expiração da sessão, prova errada, código já utilizado, erros sanitizados, limite de tentativas e implantação simulada com segredo somente no stdin. O serviço não usa banco de dados nem registra códigos ou tokens. A implantação real e a autorização no AniList ainda dependem do login na conta Cloudflare e do cadastro do Redirect URL.
+
+`task compile PUBLISH=false` gerou o instalador local `1.6.5`; a conferência do MSI e a inicialização, movimento e fechamento do executável passaram. Esse build não foi publicado. A configuração pública ainda preserva o login direto até o deploy do Worker fornecer seu endereço real.
+
 ## Publicação automática pelo task compile
 
 `task compile` agora compila, verifica, cria o commit das alterações não ignoradas e a tag, envia ambos para `origin` e publica a release com o MSI e `SHA256SUMS.txt`. A publicação usa a [API de releases do GitHub](https://docs.github.com/en/rest/releases/releases) e confere o SHA-256 dos anexos antes de tornar a release pública. `PUBLISH=false` mantém somente o build local. Um envio interrompido é retomado na execução seguinte usando `build/pending-release.json`, sem novo incremento.

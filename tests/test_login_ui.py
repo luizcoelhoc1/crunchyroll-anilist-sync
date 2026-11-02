@@ -170,6 +170,25 @@ class LoginUiTests(unittest.TestCase):
         configure.assert_called_once_with(authorize=True)
         worker.assert_not_called()
 
+    def test_public_service_login_skips_secret_prompt_and_verifies_before_saving(self):
+        self.config_mock.return_value = AniListConfig("55193", REDIRECT_URI,
+            auth_service_url="https://auth.example.workers.dev")
+        self.client_store.get.return_value = None
+        record = {"access_token": "fake-public-token", "expires_at": time.time() + 3600}
+        with patch.object(ui, "login_via_service", return_value=record) as login, \
+                patch.object(ui, "login_anilist") as direct, patch.object(ui, "AniList") as api, \
+                patch.object(self.window, "run_worker") as worker, \
+                patch.object(self.window, "configure_anilist") as setup:
+            self.window.sign_in("al")
+            self.store.put.assert_not_called()
+            worker.call_args.args[0]()
+        self.assertEqual(login.call_args.args[:2], ("55193", "https://auth.example.workers.dev"))
+        direct.assert_not_called()
+        setup.assert_not_called()
+        self.client_store.get.assert_not_called()
+        api.return_value.identify.assert_called_once()
+        self.store.put.assert_called_once_with("al", record)
+
     def test_env_secret_takes_precedence_without_prompt_or_protected_copy(self):
         self.config_mock.return_value = AniListConfig("55193", REDIRECT_URI, "env-secret-ficticio")
         self.window.anilist_client_credentials = ("55193", "old-secret-ficticio")

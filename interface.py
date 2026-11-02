@@ -11,6 +11,7 @@ from browser_bridge import LocalBridge, open_chrome
 from browser_login import login_crunchyroll, cr_record_from_fetch
 from cr_direct_login import login_with_password
 from oauth_login import login_anilist, open_regular_browser
+from oauth_service import login_via_service
 from app_config import load_anilist_config
 from chrome_profile import ChromeSetupRequired, open_connection_settings
 from session_store import SessionStore, CrunchyrollSession, ClientSecretStore
@@ -119,6 +120,10 @@ class Window:
             client_id = config.client_id
         except SyncError as exc:
             messagebox.showerror("Configuração AniList", str(exc))
+            return
+        if config.auth_service_url:
+            messagebox.showinfo("Configuração AniList", "O login está configurado pelo serviço de autorização.\n"
+                                "Não é necessário informar um Client Secret neste computador.")
             return
         if config.client_secret:
             messagebox.showinfo("Configuração AniList", "O aplicativo AniList já está configurado pelo .env "
@@ -332,7 +337,7 @@ class Window:
             messagebox.showerror("Configuração AniList", str(exc))
             return
         client_secret = config.client_secret if config else None
-        if service == "al":
+        if service == "al" and not config.auth_service_url:
             client_id = config.client_id
             cached = self.anilist_client_credentials
             if not client_secret and cached and cached[0] == client_id:
@@ -355,8 +360,12 @@ class Window:
                         "Autorize o aplicativo na aba do seu navegador habitual e depois volte ao sincronizador.")
         def job():
             if service == "al":
-                record = login_anilist(config.client_id, config.redirect_uri, self.stop.is_set,
-                                       client_secret=client_secret)
+                if config.auth_service_url:
+                    record = login_via_service(config.client_id, config.auth_service_url,
+                                              self.stop.is_set, config.redirect_uri)
+                else:
+                    record = login_anilist(config.client_id, config.redirect_uri, self.stop.is_set,
+                                           client_secret=client_secret)
                 value = record["access_token"]
                 AniList(value, cancelled=self.stop.is_set).identify()
             else:

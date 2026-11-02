@@ -9,10 +9,11 @@ import re
 from urllib.parse import urlsplit
 
 from oauth_login import REDIRECT_URI
+from oauth_service import service_url
 from sync_anilist import SyncError
 from app_paths import RESOURCE_ROOT, DATA_ROOT
 
-KEYS = {"ANILIST_CLIENT_ID", "ANILIST_CLIENT_SECRET", "ANILIST_REDIRECT_URI"}
+KEYS = {"ANILIST_CLIENT_ID", "ANILIST_CLIENT_SECRET", "ANILIST_REDIRECT_URI", "ANILIST_AUTH_SERVICE_URL"}
 
 
 @dataclass(frozen=True)
@@ -20,10 +21,11 @@ class AniListConfig:
     client_id: str
     redirect_uri: str
     client_secret: str | None = field(default=None, repr=False)
+    auth_service_url: str | None = None
 
 
 def read_dotenv(path):
-    """Lê só as três chaves do app, sem executar/interpolar o conteúdo."""
+    """Lê só as chaves do app, sem executar/interpolar o conteúdo."""
     if not path.exists():
         return {}
     try:
@@ -74,7 +76,8 @@ def load_anilist_config(root=None, environ=None):
         except (OSError, ValueError):
             raise SyncError("Confira o formato do arquivo auth_config.json.") from None
     values = {"ANILIST_CLIENT_ID": str(legacy.get("anilist_client_id", "55193")),
-              "ANILIST_REDIRECT_URI": legacy.get("anilist_redirect_uri", REDIRECT_URI)}
+              "ANILIST_REDIRECT_URI": legacy.get("anilist_redirect_uri", REDIRECT_URI),
+              "ANILIST_AUTH_SERVICE_URL": legacy.get("anilist_auth_service_url", "")}
     values.update(read_dotenv(root / ".env"))
     values.update({key: environ[key] for key in KEYS if key in environ})
     client_id = values["ANILIST_CLIENT_ID"].strip()
@@ -93,4 +96,8 @@ def load_anilist_config(root=None, environ=None):
         raise SyncError("Confira ANILIST_REDIRECT_URI no .env; use " + REDIRECT_URI)
     if secret and (len(secret) > 4096 or any(c in secret for c in "\r\n\x00")):
         raise SyncError("Confira ANILIST_CLIENT_SECRET no .env ou no ambiente.")
-    return AniListConfig(client_id, redirect, secret)
+    service = values.get("ANILIST_AUTH_SERVICE_URL", "")
+    if not isinstance(service, str):
+        raise SyncError("Confira ANILIST_AUTH_SERVICE_URL na configuração.")
+    service = service_url(service.strip()) if service.strip() else None
+    return AniListConfig(client_id, redirect, secret, service)

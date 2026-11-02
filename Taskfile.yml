@@ -5,6 +5,27 @@ vars:
   PUBLISH: 'true'
 
 tasks:
+  auth:login:
+    desc: Autoriza o Wrangler na sua conta Cloudflare Free
+    cmds:
+      - task: _auth-env
+      - node cloudflare/node_modules/wrangler/bin/wrangler.js login --use-keyring --scopes account:read user:read workers:write workers_scripts:write workers_routes:write --config cloudflare/wrangler.jsonc
+
+  auth:deploy:
+    desc: Publica o login AniList no Cloudflare usando o segredo do .env local
+    cmds:
+      - task: _auth-env
+      - python cloudflare/deploy.py
+
+  _auth-env:
+    internal: true
+    dir: '{{.TASKFILE_DIR}}'
+    preconditions:
+      - sh: node --version
+        msg: Instale Node.js para preparar o Worker Cloudflare.
+    cmds:
+      - npm --prefix cloudflare ci --no-audit --no-fund
+
   compile:
     desc: Compila o MSI, cria commit/tag e publica a release no GitHub (PUBLISH=false para build local)
     dir: '{{.TASKFILE_DIR}}'

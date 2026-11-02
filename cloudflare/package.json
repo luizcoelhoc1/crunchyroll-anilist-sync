@@ -1,0 +1,13 @@
+{
+  "name": "crunchyroll-anilist-auth",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test ../tests/test_auth_worker.mjs",
+    "deploy": "wrangler deploy",
+    "login": "wrangler login"
+  },
+  "devDependencies": {
+    "wrangler": "4.156.2"
+  }
+}

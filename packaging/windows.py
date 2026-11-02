@@ -20,7 +20,7 @@ os.chdir(PROJECT)
 # Only these public assets are bundled. Never include the workspace wholesale.
 ASSETS = [
     "mapeamentos_lumimao.json", "auth_config.json", ".env.example",
-    "LEIA-ME.md", "README.md", "CONEXAO_CHROME.md",
+    "LEIA-ME.md", "README.md", "CONEXAO_CHROME.md", "CLOUDFLARE.md",
     "ATUALIZACAO_1_2.md", "ATUALIZACAO_1_3.md", "ATUALIZACAO_1_4.md", "ATUALIZACAO_1_5.md",
     "ATUALIZACAO_1_6.md",
     "extensao_chrome/background.mjs", "extensao_chrome/protocol.mjs",

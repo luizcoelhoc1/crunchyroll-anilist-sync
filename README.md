@@ -23,7 +23,9 @@ Para executar diretamente pelo código:
 
 O login direto Crunchyroll é uma integração não oficial implementada em Python no projeto, sem instalar a biblioteca de referência. A API pode recusar o cliente, exigir uma confirmação ou bloquear a chamada; nesses casos o app informa o erro e não repete a senha automaticamente. Os métodos com navegador e extensão continuam em **Opções avançadas**.
 
-Configure o AniList em um arquivo `.env` na pasta do programa (modelo em [.env.example](.env.example)):
+Para distribuir o aplicativo já configurado, use o [serviço gratuito de autorização no Cloudflare](CLOUDFLARE.md). Nesse modo, o segredo fica no Worker e o instalador leva apenas a configuração pública. As instruções de `.env` abaixo também permitem usar o login direto local.
+
+Para o login direto, configure o AniList em um arquivo `.env` na pasta do programa (modelo em [.env.example](.env.example)):
 
 ```dotenv
 ANILIST_CLIENT_ID=55193
@@ -86,7 +88,7 @@ python -m unittest discover -s tests -v
 node --test tests/test_extension.mjs
 ```
 
-Node.js é necessário apenas para os testes da extensão. Veja [VALIDACAO.md](VALIDACAO.md) para os testes realizados e seus limites.
+Node.js é necessário para os testes JavaScript e para publicar o serviço opcional de autorização; nesse caso, siga [CLOUDFLARE.md](CLOUDFLARE.md). O aplicativo desktop não exige Node.js. Veja [VALIDACAO.md](VALIDACAO.md) para os testes realizados e seus limites.
 
 ## Versões e dados locais
 

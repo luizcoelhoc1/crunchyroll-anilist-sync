@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "crunchyroll-anilist-auth",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-11-02",
+  "workers_dev": true,
+  "observability": {"enabled": false},
+  "ratelimits": [{
+    "name": "AUTH_RATE_LIMITER",
+    "namespace_id": "55193001",
+    "simple": {"limit": 60, "period": 60}
+  }]
+}

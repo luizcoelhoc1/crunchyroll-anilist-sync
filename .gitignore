@@ -8,6 +8,9 @@ erro-inicializacao.txt
 .venv/
 venv/
 .venv-build/
+node_modules/
+.wrangler/
+.dev.vars*
 build/
 dist/
 *.egg-info/
