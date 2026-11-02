@@ -21,3 +21,8 @@ diario-aplicacao.jsonl
 verificacao.json
 execucao-interrompida.json
 *.zip
+sessions.dat
+sessions.tmp
+cral-login-*/
+client-credentials.dat
+client-credentials.tmp

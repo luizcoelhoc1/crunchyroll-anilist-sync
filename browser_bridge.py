@@ -191,9 +191,14 @@ def chrome_path():
     raise SyncError("Chrome nao localizado. Abra o Chrome e use o endereco de conexao mostrado no programa.")
 
 
-def open_chrome(url):
+def open_chrome(url, profile_directory=None):
     # Abre a pagina de conexao; nao encerra nem reinicia o Chrome existente.
     flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
-    subprocess.Popen([chrome_path(), "--new-tab", url],
+    args = [chrome_path()]
+    if profile_directory is not None:
+        if not re.fullmatch(r"Default|Profile [0-9]+", profile_directory):
+            raise SyncError("Perfil Chrome inválido.")
+        args.append("--profile-directory=" + profile_directory)
+    subprocess.Popen([*args, "--new-tab", url],
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
                      creationflags=flags)

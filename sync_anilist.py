@@ -1,5 +1,6 @@
 """Crunchyroll -> AniList. Python 3.10+, biblioteca padrao.
-Credenciais ficam apenas em memoria. Nenhuma alteracao remota durante a previa.
+CLI mantém credenciais em memória; a interface oferece sessões protegidas no Windows.
+Nenhuma alteracao remota durante a previa.
 """
 from __future__ import annotations
 import argparse
@@ -160,7 +161,7 @@ class PinnedRedirect(urllib.request.HTTPRedirectHandler):
 
 
 class HttpClient:
-    def __init__(self, origin, headers=None, delay=0.0, log=print, cancelled=None):
+    def __init__(self, origin, headers=None, delay=0.0, log=print, cancelled=None, authorize=None):
         self.origin = origin.rstrip("/")
         self.headers = dict(headers or {})
         self.delay, self.log = delay, log
@@ -169,6 +170,7 @@ class HttpClient:
         self.last_request = 0.0
         self.not_before = 0.0
         self.rate = {}
+        self.authorize = authorize
 
     def check_cancelled(self):
         if self.cancelled():
@@ -192,8 +194,11 @@ class HttpClient:
 
     def request(self, method, url, body=None, mutation=False):
         url = self._safe_url(url)
+        auth_retried = False
         for attempt in range(4):
             self.check_cancelled()
+            if self.authorize:
+                self.headers.update(self.authorize())
             self.wait(max(self.last_request + self.delay, self.not_before) - time.monotonic())
             data = None if body is None else json.dumps(body).encode("utf-8")
             headers = {"Accept": "application/json",
@@ -216,6 +221,11 @@ class HttpClient:
                     raise ApiError("A API nao retornou JSON. Verifique a sessao ou um bloqueio do site.")
             except urllib.error.HTTPError as exc:
                 status = exc.code
+                if status == 401 and self.authorize and not mutation and not auth_retried and attempt < 3:
+                    self.check_cancelled()
+                    self.headers.update(self.authorize(force=True))
+                    auth_retried = True
+                    continue
                 if status == 429 and attempt < 3:
                     raw_retry = exc.headers.get("Retry-After", "60")
                     try:
@@ -244,6 +254,10 @@ class HttpClient:
 
 class Crunchyroll:
     def __init__(self, credential, account_id=None, profile=None, **kwargs):
+        session = None if isinstance(credential, str) else credential
+        if session:
+            credential = session.access()
+            kwargs["authorize"] = lambda force=False: {"authorization": "Bearer " + session.access(force=force)}
         text = credential.strip()
         if "fetch(" in text or "fetch (" in text:
             url, headers = parse_fetch(text, "cr")
@@ -252,6 +266,8 @@ class Crunchyroll:
         else:
             token = text.removeprefix("Bearer ").strip()
             headers = {"authorization": "Bearer " + token}
+        if session and session.record.get("auth_method") == "password":
+            headers["user-agent"] = session.record["user_agent"]
         if not token:
             raise SyncError("Token do Crunchyroll ausente na requisicao.")
         claims = jwt_claims(token)
@@ -498,6 +514,29 @@ class AniList:
             variables["id"] = current["id"]
         query = "mutation(" + declarations + "){SaveMediaListEntry(" + args + "){" + ENTRY_FIELDS + "}}"
         return self.gql(query, variables, mutation=True)["SaveMediaListEntry"]
+
+    def activities(self, media_id):
+        query = ("query($u:Int!,$m:Int!){Page(page:1,perPage:50){activities("
+                 "userId:$u,mediaId:$m,type:ANIME_LIST,sort:ID_DESC){... on ListActivity{"
+                 "id userId type status progress isLocked createdAt media{id}}}}}")
+        data = self.gql(query, {"u": self.viewer["id"], "m": media_id})
+        activities = (data.get("Page") or {}).get("activities")
+        if not isinstance(activities, list):
+            raise ApiError("Não foi possível conferir as atividades do AniList.")
+        return activities
+
+    def activity_replies(self, activity_id):
+        query = ("query($id:Int!){Activity(id:$id){... on ListActivity{"
+                 "id replies{id userId text(asHtml:false)}}}}")
+        activity = self.gql(query, {"id": activity_id}).get("Activity")
+        if not activity or activity.get("id") != activity_id or not isinstance(activity.get("replies"), list):
+            raise ApiError("Não foi possível conferir os comentários da atividade.")
+        return activity["replies"]
+
+    def reply_activity(self, activity_id, text):
+        query = ("mutation($id:Int!,$text:String!){SaveActivityReply(activityId:$id,text:$text){"
+                 "id activityId userId text(asHtml:false)}}")
+        return self.gql(query, {"id": activity_id, "text": text}, mutation=True).get("SaveActivityReply")
 
 
 def load_mappings(path=None):
@@ -867,6 +906,96 @@ def _matches_target(entry, change):
                 and entry["progress"] == change["after"]["progress"])
 
 
+def single_episode_change(change):
+    before = (change.get("before") or {}).get("progress", 0)
+    after = (change.get("after") or {}).get("progress")
+    return (type(before) is int and type(after) is int and after - before == 1)
+
+
+def activity_comment(change):
+    text = change.get("activity_comment", "")
+    if not isinstance(text, str):
+        raise SyncError("Comentário de atividade inválido.")
+    text = text.strip()
+    if text and (not single_episode_change(change) or not 2 <= len(text) <= 8000):
+        raise SyncError("O comentário exige avanço de exatamente 1 episódio e texto entre 2 e 8000 caracteres.")
+    return text
+
+
+def _comment_journal(path, value):
+    with path.open("a", encoding="utf-8") as journal:
+        journal.write(json.dumps(value, ensure_ascii=False) + "\n")
+        journal.flush()
+        os.fsync(journal.fileno())
+
+
+def _comment_target(activities, baseline, change, user_id):
+    old = {a["id"]: (a.get("progress"), a.get("status")) for a in baseline if a.get("id")}
+    candidates = []
+    for a in activities:
+        if (not isinstance(a.get("id"), int) or a.get("userId") != user_id or
+                (a.get("media") or {}).get("id") != change["mediaId"] or
+                a.get("type") != "ANIME_LIST" or a.get("isLocked") is not False or
+                old.get(a["id"]) == (a.get("progress"), a.get("status"))):
+            continue
+        progress = re.fullmatch(r"(?:\d+\s*-\s*)?(\d+)", str(a.get("progress") or ""))
+        matches = progress and int(progress.group(1)) == change["after"]["progress"]
+        # A atividade de conclusão pode não informar o número do episódio.
+        if not matches and change["after"]["status"] == "COMPLETED":
+            matches = a.get("status") == "completed" and not a.get("progress")
+        if matches:
+            candidates.append(a)
+    return candidates[0] if len(candidates) == 1 else None
+
+
+def publish_update_comment(al, change, baseline, user_id, journal_path):
+    result = {"mediaId": change["mediaId"], "text": activity_comment(change), "status": "pending"}
+    if baseline is None:
+        result["reason"] = "Não foi possível conferir as atividades antes da atualização."
+        return result
+    target = None
+    try:
+        for attempt in range(3):
+            al.http.check_cancelled()
+            target = _comment_target(al.activities(change["mediaId"]), baseline, change, user_id)
+            if target:
+                break
+            if attempt < 2:
+                al.http.wait(2)
+        if target is None:
+            result["reason"] = "A atividade correspondente não apareceu ou não pôde ser identificada sem ambiguidade."
+            return result
+        aid = target["id"]
+        result.update(activityId=aid, url=f"https://anilist.co/activity/{aid}")
+        previous_ids = {r["id"] for r in al.activity_replies(aid)}
+    except ApiError:
+        result["reason"] = "Não foi possível conferir a atividade e seus comentários."
+        return result
+    al.http.check_cancelled()
+    _comment_journal(journal_path, {"phase": "comment_attempt", **result})
+    result["status"] = "unconfirmed"
+    try:
+        reply = al.reply_activity(aid, result["text"])
+        if (reply and reply.get("id") not in previous_ids and isinstance(reply.get("id"), int) and
+                reply.get("activityId") == aid and reply.get("userId") == user_id and
+                reply.get("text") == result["text"]):
+            result.update(status="published", replyId=reply["id"])
+    except ApiError:
+        pass  # Consulta o resultado; não repete uma publicação de resultado incerto.
+    if result["status"] == "unconfirmed":
+        try:
+            replies = [r for r in al.activity_replies(aid) if r.get("id") not in previous_ids and
+                       r.get("userId") == user_id and r.get("text") == result["text"]]
+            if len(replies) == 1:
+                result.update(status="published", replyId=replies[0]["id"])
+        except ApiError:
+            pass
+    if result["status"] == "unconfirmed":
+        result["reason"] = "O envio não pôde ser confirmado. Confira a atividade antes de comentar manualmente."
+    _comment_journal(journal_path, {"phase": "comment_result", **result})
+    return result
+
+
 def apply_plan(al, plan, folder):
     if plan.get("review_state_only"):
         raise SyncError("Este arquivo e o estado da revisao e inclui itens nao marcados. "
@@ -882,6 +1011,7 @@ def apply_plan(al, plan, folder):
     live = {e["mediaId"]: e for e in live_entries}
     todo, skipped, conflicts = [], [], []
     for c in plan["changes"]:
+        activity_comment(c)  # Valida todos os textos antes de qualquer alteração remota.
         if (not isinstance(c.get("mediaId"), int) or c["mediaId"] <= 0
                 or not isinstance(c.get("after", {}).get("progress"), int)
                 or isinstance(c["after"]["progress"], bool) or c["after"]["progress"] < 0
@@ -904,12 +1034,21 @@ def apply_plan(al, plan, folder):
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S") + "-" + str(time.time_ns())[-6:]
     save_json(folder / f"backup-aplicacao-{stamp}.json", {"user": viewer, "entries": live_entries})
     results = []
+    comment_results = [{"mediaId": c["mediaId"], "text": activity_comment(c), "status": "pending",
+                        "reason": "O progresso já estava aplicado ou maior; o comentário não foi reenviado."}
+                       for c in plan["changes"] if c not in todo and activity_comment(c)]
     attempted = []
     journal_path = folder / "diario-aplicacao.jsonl"
     try:
         for c in todo:
             al.http.check_cancelled()
             current = live.get(c["mediaId"])
+            baseline = None
+            if activity_comment(c):
+                try:
+                    baseline = al.activities(c["mediaId"])
+                except ApiError:
+                    pass  # Falha no comentário não impede a atualização de progresso.
             attempted.append(c["mediaId"])
             with journal_path.open("a", encoding="utf-8") as journal:
                 journal.write(json.dumps({"phase": "attempt", "mediaId": c["mediaId"],
@@ -939,6 +1078,12 @@ def apply_plan(al, plan, folder):
                 os.fsync(journal.fileno())
             al.http.log(f"Confirmado {len(results)}/{len(todo)}: {c['title']} "
                         f"-> {saved['status']} {saved['progress']}")
+            if activity_comment(c):
+                comment = publish_update_comment(al, c, baseline, viewer["id"], journal_path)
+                comment_results.append(comment)
+                save_json(folder / "comentarios.json", comment_results)
+                al.http.log("Comentário " + ("publicado" if comment["status"] == "published" else "pendente") +
+                            f": {c['title']}" + (" — " + comment["reason"] if comment.get("reason") else ""))
         after_entries = al.collection()
         after = {e["mediaId"]: e for e in after_entries}
         target_errors = [c["mediaId"] for c in todo if not _matches_target(after.get(c["mediaId"]), c)]
@@ -951,12 +1096,15 @@ def apply_plan(al, plan, folder):
                            or e["status"] != after[e["mediaId"]]["status"]
                            or e["progress"] != after[e["mediaId"]]["progress"])]
         report = {"user": viewer, "applied": len(results), "skipped": skipped,
+                  "comments": comment_results,
                   "target_errors": target_errors, "protected_errors": protected_errors,
                   "unexpected_changes": unexpected, "total_before": len(live_entries),
                   "total_after": len(after_entries), "success": not (target_errors or protected_errors or unexpected),
                   "confirmed_entries": [{k: v for k, v in after[c["mediaId"]].items() if k != "media"}
                                         for c in plan["changes"] if c["mediaId"] in after]}
         save_json(folder / "verificacao.json", report)
+        if comment_results:
+            save_json(folder / "comentarios.json", comment_results)
         save_json(folder / "anilist-depois.json", {"user": viewer, "entries": after_entries})
         if not report["success"]:
             raise SyncError("Ha divergencias na conferencia final. Consulte verificacao.json.")
@@ -966,6 +1114,7 @@ def apply_plan(al, plan, folder):
                   {"confirmed": [r["mediaId"] for r in results],
                    "attempted": attempted,
                    "uncertain": [i for i in attempted if i not in {r["mediaId"] for r in results}],
+                   "comments": comment_results,
                    "reason": str(exc)})
         raise
 

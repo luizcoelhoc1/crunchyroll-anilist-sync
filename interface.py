@@ -1,12 +1,19 @@
-"""Interface Tkinter. Tokens colados ficam somente em memoria."""
+"""Interface Tkinter com login no navegador e sessões protegidas no Windows."""
 import json
 import os
 from pathlib import Path
 import queue
 import threading
+import time
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 from browser_bridge import LocalBridge, open_chrome
+from browser_login import login_crunchyroll, cr_record_from_fetch
+from cr_direct_login import login_with_password
+from oauth_login import login_anilist, open_regular_browser
+from app_config import load_anilist_config
+from chrome_profile import ChromeSetupRequired, open_connection_settings
+from session_store import SessionStore, CrunchyrollSession, ClientSecretStore
 from avatars import avatar_url, avatar_photo, download_avatar
 from plan_editor import save_review
 from review_pane import ReviewPane
@@ -25,6 +32,12 @@ class Window:
         self.q = queue.Queue()
         self.stop = threading.Event()
         self.auth = {"cr": "", "al": ""}
+        self.session_store = SessionStore()
+        self.client_secret_store = ClientSecretStore()
+        self.anilist_client_credentials = None
+        self.session_records = {}
+        self.keep_sessions = os.name == "nt"
+        self.storage_warning = ""
         self.plan = None
         self.busy = False
         self.logged_in = False
@@ -41,7 +54,7 @@ class Window:
         self.user = tk.StringVar(value="Detectado ao gerar a prévia")
         self.profile = tk.StringVar(value="Detectado ao gerar a prévia")
         self.history_file = tk.StringVar()
-        self.status = tk.StringVar(value="Conecte pelo Chrome e gere uma prévia. Nenhuma alteração será feita nessa etapa.")
+        self.status = tk.StringVar(value="Autorize o AniList no seu Chrome habitual e conecte o Crunchyroll; depois gere uma prévia.")
         style = ttk.Style(root)
         if "vista" in style.theme_names():
             style.theme_use("vista")
@@ -59,14 +72,53 @@ class Window:
         self.login_panel.pack(fill="x")
         auto_row = ttk.Frame(self.login_panel)
         auto_row.pack(fill="x", pady=(0, 6))
-        self.connect_button = ttk.Button(auto_row, text="Conectar pelo Chrome", command=self.connect_chrome)
-        self.connect_button.pack(side="left")
-        self.token_login_button = ttk.Button(auto_row, text="Login via token", command=self.toggle_token_login)
+        for service, title in (("al", "Autorizar AniList"), ("cr", "Entrar no Crunchyroll")):
+            button = ttk.Button(auto_row, text=title, command=lambda s=service: self.sign_in(s))
+            button.pack(side="left", padx=(0, 8))
+            self.option_widgets.append(button)
+        self.chrome_connect_label = "Conectar pela extensão"
+        self.token_login_button = ttk.Button(auto_row, text="Opções avançadas", command=self.toggle_token_login)
         self.token_login_button.pack(side="left", padx=8)
-        install_button = ttk.Button(auto_row, text="Instalar extensão (uma vez)", command=self.install_extension)
-        install_button.pack(side="left")
-        self.option_widgets.extend((install_button, self.token_login_button))
-        self.token_panel = ttk.LabelFrame(self.login_panel, text="Login via token", padding=10)
+        self.option_widgets.append(self.token_login_button)
+        self.remember = tk.BooleanVar(value=self.keep_sessions)
+        remember_button = ttk.Checkbutton(self.login_panel, text="Manter contas conectadas neste Windows",
+                                         variable=self.remember, command=self.change_remember)
+        remember_button.pack(anchor="w")
+        if os.name == "nt":
+            self.option_widgets.append(remember_button)
+        else:
+            remember_button.configure(state="disabled")
+        self.session_labels = {}
+        session_row = ttk.Frame(self.login_panel)
+        session_row.pack(fill="x", pady=(4, 0))
+        for service, name in (("cr", "Crunchyroll"), ("al", "AniList")):
+            label = ttk.Label(session_row, text=name + ": aguardando login")
+            label.pack(side="left", padx=(0, 18))
+            self.session_labels[service] = label
+        self.token_panel = ttk.LabelFrame(self.login_panel, text="Métodos alternativos", padding=10)
+        legacy_row = ttk.Frame(self.token_panel)
+        legacy_row.pack(fill="x", pady=(0, 6))
+        self.connect_button = ttk.Button(legacy_row, text=self.chrome_connect_label, command=self.connect_chrome)
+        self.connect_button.pack(side="left", padx=(0, 8))
+        install_button = ttk.Button(legacy_row, text="Instalar extensão (opcional)", command=self.install_extension)
+        install_button.pack(side="left", padx=8)
+        self.option_widgets.append(install_button)
+        client_button = ttk.Button(legacy_row, text="Configurar AniList", command=self.configure_anilist)
+        client_button.pack(side="left", padx=8)
+        self.option_widgets.append(client_button)
+        current_button = ttk.Button(legacy_row, text="Crunchyroll: perfil do Chrome (avançado)",
+                                    command=lambda: self.sign_in("cr", browser_mode="current"))
+        current_button.pack(side="left", padx=8)
+        self.option_widgets.append(current_button)
+        browser_row = ttk.Frame(self.token_panel)
+        browser_row.pack(fill="x", pady=(0, 6))
+        browser_button = ttk.Button(browser_row, text="Crunchyroll: janela do navegador",
+                                    command=lambda: self.sign_in("cr", browser_mode="isolated"))
+        browser_button.pack(side="left", padx=(0, 8))
+        self.edge_login_button = ttk.Button(browser_row, text="Tentar Crunchyroll com Edge",
+                                            command=lambda: self.sign_in("cr", browser_mode="edge"))
+        self.edge_login_button.pack(side="left")
+        self.option_widgets.extend((browser_button, self.edge_login_button))
         ttk.Label(self.token_panel,
                   text="Cole a requisição copiada do navegador ou digite o token de cada serviço.").pack(anchor="w", pady=(0, 6))
         for service, name in (("cr", "Crunchyroll"), ("al", "AniList")):
@@ -94,9 +146,17 @@ class Window:
             self.reset_avatar(service)
         account_actions = ttk.Frame(self.accounts_panel)
         account_actions.pack(fill="x", pady=(6, 0))
-        self.logout_button = ttk.Button(account_actions, text="Trocar conta", command=self.logout)
+        self.logout_button = ttk.Button(account_actions, text="Sair / trocar contas", command=self.logout)
         self.logout_button.pack(side="right")
         self.option_widgets.append(self.logout_button)
+        # O usuário pode desligar a persistência mesmo depois de conectar as contas.
+        account_remember = ttk.Checkbutton(account_actions, text="Manter contas conectadas neste Windows",
+                                          variable=self.remember, command=self.change_remember)
+        account_remember.pack(side="left")
+        if os.name == "nt":
+            self.option_widgets.append(account_remember)
+        else:
+            account_remember.configure(state="disabled")
         self.source_panel = ttk.Frame(self.login_panel)
         source = self.source_panel
         source.pack(fill="x", pady=(8, 0))
@@ -134,6 +194,324 @@ class Window:
         root.protocol("WM_DELETE_WINDOW", self.close)
         self.refresh_login_ui()
         self.drain_timer = root.after(100, self.drain)
+        self.restore_timer = root.after(200, self.restore_sessions)
+
+    def save_session(self, service, record):
+        self.session_records[service] = dict(record)
+        if self.keep_sessions:
+            try:
+                self.session_store.put(service, record)
+                self.storage_warning = ""
+            except (OSError, SyncError):
+                self.storage_warning = "Não foi possível salvar o login protegido. Os acessos continuam nesta execução."
+                self.q.put(("log", self.storage_warning))
+
+    def change_remember(self):
+        value = self.remember.get()
+        try:
+            if value:
+                for service, record in self.session_records.items():
+                    self.session_store.put(service, record)
+            else:
+                self.session_store.clear()
+        except (OSError, SyncError) as exc:
+            self.remember.set(self.keep_sessions)
+            messagebox.showerror("Login salvo", str(exc))
+            return
+        self.keep_sessions = value
+        self.status.set("Os novos logins serão protegidos pelo Windows." if value else
+                        "Login salvo removido deste computador. Os acessos atuais ficam só em memória.")
+
+    def restore_sessions(self):
+        self.restore_timer = None
+        if self.busy or self.closing or not self.keep_sessions:
+            return
+        try:
+            records = self.session_store.load()
+            al = records.get("al", {})
+            if isinstance(al, dict) and float(al.get("expires_at", 0)) > time.time() + 60:
+                self.auth["al"] = al["access_token"]
+                self.session_records["al"] = al
+                self.session_labels["al"].configure(text="AniList: login salvo")
+            elif al:
+                self.session_labels["al"].configure(text="AniList: autorize novamente (acesso expirado)")
+            if records.get("cr"):
+                self.auth["cr"] = CrunchyrollSession(records["cr"], lambda record: self.save_session("cr", record))
+                self.session_records["cr"] = records["cr"]
+                self.session_labels["cr"].configure(text="Crunchyroll: login salvo")
+        except (OSError, SyncError, ValueError, TypeError, KeyError):
+            self.status.set("Não foi possível restaurar todos os acessos. Entre novamente nas contas indicadas.")
+        self.maybe_identify_accounts()
+
+    def configure_anilist(self, authorize=False):
+        if self.busy or self.bridge:
+            return
+        try:
+            config = load_anilist_config()
+            client_id = config.client_id
+        except SyncError as exc:
+            messagebox.showerror("Configuração AniList", str(exc))
+            return
+        if config.client_secret:
+            messagebox.showinfo("Configuração AniList", "O aplicativo AniList já está configurado pelo .env "
+                                "ou pelas variáveis de ambiente. Para alterar o Client Secret, edite "
+                                "ANILIST_CLIENT_SECRET nessa configuração.")
+            return
+        dialog = tk.Toplevel(self.root)
+        dialog.title("Configurar aplicativo AniList")
+        dialog.transient(self.root)
+        dialog.grab_set()
+        ttk.Label(dialog, text=f"Client Secret do aplicativo AniList {client_id}",
+                  font=("Segoe UI", 11, "bold"), padding=12).pack(anchor="w")
+        ttk.Label(dialog, text="Copie o Client Secret do mesmo aplicativo no cadastro do AniList e cole aqui.\n"
+                              "O segredo é enviado somente ao AniList para concluir a autorização.",
+                  padding=(12, 0)).pack(anchor="w")
+        ttk.Button(dialog, text="Abrir cadastro do AniList", command=lambda: open_regular_browser(
+            "https://anilist.co/settings/developer")).pack(anchor="w", padx=12, pady=8)
+        entry = ttk.Entry(dialog, show="*", width=65)
+        entry.pack(padx=12, pady=6)
+        entry.focus_set()
+        cached = self.anilist_client_credentials
+        if cached and cached[0] == client_id:
+            entry.insert(0, cached[1])
+        else:
+            try:
+                current = self.client_secret_store.get(client_id)
+                if current:
+                    entry.insert(0, current)
+            except (OSError, SyncError):
+                pass
+        remember_secret = tk.BooleanVar(value=os.name == "nt" and self.keep_sessions)
+        check = ttk.Checkbutton(dialog, text="Guardar esta configuração protegida pelo Windows",
+                                variable=remember_secret)
+        check.pack(anchor="w", padx=12, pady=6)
+        if os.name != "nt":
+            check.configure(state="disabled")
+
+        def accept():
+            secret = entry.get().strip()
+            if not secret or len(secret) > 4096 or any(c in secret for c in "\r\n\x00"):
+                messagebox.showerror("AniList", "Cole o Client Secret do aplicativo neste campo.", parent=dialog)
+                return
+            try:
+                if remember_secret.get():
+                    self.client_secret_store.save(client_id, secret)
+                else:
+                    self.client_secret_store.clear()
+            except (OSError, SyncError):
+                messagebox.showerror("AniList", "Não foi possível guardar a configuração protegida. "
+                                     "Desmarque a opção para usar só nesta execução.", parent=dialog)
+                return
+            self.anilist_client_credentials = (client_id, secret)
+            entry.delete(0, "end")
+            dialog.destroy()
+            if authorize:
+                self.sign_in("al")
+            else:
+                self.status.set("Aplicativo AniList configurado. Clique em Autorizar AniList.")
+
+        actions = ttk.Frame(dialog)
+        actions.pack(fill="x", padx=12, pady=12)
+        ttk.Button(actions, text="Salvar e autorizar" if authorize else "Salvar configuração",
+                   command=accept).pack(side="left")
+        ttk.Button(actions, text="Cancelar", command=dialog.destroy).pack(side="right")
+
+    def show_chrome_setup(self):
+        dialog = tk.Toplevel(self.root)
+        dialog.title("Conectar ao seu perfil do Chrome")
+        dialog.transient(self.root)
+        dialog.grab_set()
+        ttk.Label(dialog, text="Use seu Chrome normal, sem instalar extensão", padding=12,
+                  font=("Segoe UI", 11, "bold")).pack(anchor="w")
+        ttk.Label(dialog, text="1. Abra a configuração abaixo no perfil do Chrome que deseja usar.\n"
+                              "2. Ative a depuração remota em chrome://inspect/#remote-debugging.\n"
+                              "3. Volte aqui, tente novamente e permita a conexão quando o Chrome pedir.\n\n"
+                              "Esse recurso do Chrome 144+ permite acesso de depuração ao perfil. "
+                              "O sincronizador acompanha apenas a aba de login que ele cria e mantém seu navegador aberto.",
+                  padding=(12, 0), wraplength=600).pack(anchor="w")
+        def settings():
+            try:
+                open_connection_settings()
+            except (OSError, SyncError) as exc:
+                messagebox.showerror("Chrome", str(exc), parent=dialog)
+        def retry():
+            dialog.destroy()
+            self.sign_in("cr", browser_mode="current")
+        actions = ttk.Frame(dialog)
+        actions.pack(fill="x", padx=12, pady=12)
+        ttk.Button(actions, text="Abrir configuração do Chrome", command=settings).pack(side="left")
+        ttk.Button(actions, text="Tentar novamente", command=retry).pack(side="left", padx=8)
+        ttk.Button(actions, text="Cancelar", command=dialog.destroy).pack(side="right")
+
+    def show_cr_password_login(self):
+        dialog = tk.Toplevel(self.root)
+        dialog.title("Entrar no Crunchyroll")
+        dialog.transient(self.root)
+        dialog.grab_set()
+        ttk.Label(dialog, text="Entre na sua conta Crunchyroll", padding=12,
+                  font=("Segoe UI", 11, "bold")).pack(anchor="w")
+        ttk.Label(dialog, text="A senha é enviada somente ao Crunchyroll e não é salva.\n"
+                              "Depois de entrar, escolha o perfil que deseja sincronizar.",
+                  padding=(12, 0)).pack(anchor="w")
+        ttk.Label(dialog, text="E-mail").pack(anchor="w", padx=12, pady=(10, 0))
+        email = ttk.Entry(dialog, width=48)
+        email.pack(padx=12, pady=4)
+        ttk.Label(dialog, text="Senha").pack(anchor="w", padx=12)
+        password = ttk.Entry(dialog, show="*", width=48)
+        password.pack(padx=12, pady=4)
+        email.focus_set()
+
+        def discard():
+            email.delete(0, "end")
+            password.delete(0, "end")
+            dialog.destroy()
+
+        def submit():
+            if self.busy or self.bridge:
+                return
+            credentials = [email.get().strip(), password.get()]
+            if not credentials[0] or not credentials[1]:
+                credentials.clear()
+                messagebox.showerror("Crunchyroll", "Preencha e-mail e senha.", parent=dialog)
+                return
+            discard()
+            self.persist_review()
+            self.invalidate()
+            self.clear_identities()
+            self.set_logged_in(False)
+            self.status.set("Entrando no Crunchyroll e consultando os perfis…")
+            def job():
+                address, secret = credentials
+                credentials.clear()
+                try:
+                    return login_with_password(address, secret, self.stop.is_set)
+                finally:
+                    address = secret = None
+            self.run_worker(job, self.show_cr_profiles, kind="login")
+
+        actions = ttk.Frame(dialog)
+        actions.pack(fill="x", padx=12, pady=12)
+        ttk.Button(actions, text="Entrar", command=submit).pack(side="left")
+        ttk.Button(actions, text="Cancelar", command=discard).pack(side="right")
+        dialog.bind("<Return>", lambda event: submit())
+        dialog.protocol("WM_DELETE_WINDOW", discard)
+
+    def show_cr_profiles(self, pending):
+        if self.closing or self.stop.is_set():
+            pending.clear()
+            self.status.set("Login Crunchyroll cancelado.")
+            return
+        dialog = tk.Toplevel(self.root)
+        dialog.title("Escolher perfil Crunchyroll")
+        dialog.transient(self.root)
+        dialog.grab_set()
+        ttk.Label(dialog, text="Qual perfil você quer sincronizar?", padding=12).pack(anchor="w")
+        choices = ttk.Combobox(dialog, state="readonly", width=48,
+                              values=[p["name"] for p in pending.profiles])
+        choices.pack(padx=12, pady=4)
+        choices.current(0)
+        submitted = False
+
+        def cleanup(event):
+            if event.widget is dialog and not submitted:
+                pending.clear()
+        dialog.bind("<Destroy>", cleanup)
+
+        def select():
+            nonlocal submitted
+            if self.busy or choices.current() < 0:
+                return
+            profile_id = pending.profiles[choices.current()]["id"]
+            submitted = True
+            dialog.destroy()
+            self.status.set("Conferindo o perfil Crunchyroll e o acesso ao histórico…")
+            def job():
+                try:
+                    record = pending.select(profile_id)
+                    value = CrunchyrollSession(record)
+                    cr = Crunchyroll(value, cancelled=self.stop.is_set)
+                    cr.identify()
+                    page = cr.http.request("GET", f"/content/v2/{cr.account_id}/watch-history?page_size=1&locale=en-US")
+                    if not isinstance(page, dict) or not isinstance(page.get("data"), list):
+                        raise SyncError("O Crunchyroll não confirmou o acesso ao histórico. O login não foi salvo.")
+                    if self.stop.is_set():
+                        raise Cancelled("Login Crunchyroll cancelado.")
+                    self.save_session("cr", value.record)
+                    value.on_change = lambda updated: self.save_session("cr", updated)
+                    return "cr", value
+                finally:
+                    pending.clear()
+            self.run_worker(job, self.login_ready, kind="login")
+
+        def cancel():
+            dialog.destroy()
+            self.status.set("Login Crunchyroll cancelado. Nenhum novo acesso foi salvo.")
+        actions = ttk.Frame(dialog)
+        actions.pack(fill="x", padx=12, pady=12)
+        ttk.Button(actions, text="Usar este perfil", command=select).pack(side="left")
+        ttk.Button(actions, text="Cancelar", command=cancel).pack(side="right")
+        dialog.protocol("WM_DELETE_WINDOW", cancel)
+
+    def sign_in(self, service, browser_mode="direct"):
+        if self.busy or self.bridge:
+            return
+        if service == "cr" and browser_mode == "direct":
+            self.show_cr_password_login()
+            return
+        try:
+            config = load_anilist_config() if service == "al" else None
+        except SyncError as exc:
+            messagebox.showerror("Configuração AniList", str(exc))
+            return
+        client_secret = config.client_secret if config else None
+        if service == "al":
+            client_id = config.client_id
+            cached = self.anilist_client_credentials
+            if not client_secret and cached and cached[0] == client_id:
+                client_secret = cached[1]
+            elif not client_secret:
+                try:
+                    client_secret = self.client_secret_store.get(client_id)
+                except (OSError, SyncError):
+                    pass
+            if not client_secret:
+                self.configure_anilist(authorize=True)
+                return
+        self.persist_review()
+        self.invalidate()
+        self.clear_identities()
+        self.set_logged_in(False)
+        self.status.set("Conectando ao seu perfil do Chrome. Permita a conexão se o navegador pedir."
+                        if service == "cr" and browser_mode == "current" else
+                        "Faça login na janela própria do Crunchyroll e selecione seu perfil; o acesso será conferido automaticamente." if service == "cr" else
+                        "Autorize o aplicativo na aba do seu navegador habitual e depois volte ao sincronizador.")
+        def job():
+            if service == "al":
+                record = login_anilist(config.client_id, config.redirect_uri, self.stop.is_set,
+                                       client_secret=client_secret)
+                value = record["access_token"]
+                AniList(value, cancelled=self.stop.is_set).identify()
+            else:
+                record = login_crunchyroll(self.stop.is_set,
+                                          on_status=lambda text: self.q.put(("login_status", text)),
+                                          use_existing=browser_mode == "current",
+                                          preferred_browser="edge" if browser_mode == "edge" else "auto")
+                value = CrunchyrollSession(record, lambda updated: self.save_session("cr", updated))
+                Crunchyroll(value, cancelled=self.stop.is_set).identify()
+            if self.stop.is_set():
+                raise Cancelled("Login cancelado.")
+            # Só salva depois de conferir o acesso na API do próprio serviço.
+            self.save_session(service, record)
+            return service, value
+        self.run_worker(job, self.login_ready, kind="login")
+
+    def login_ready(self, result):
+        service, value = result
+        self.auth[service] = value
+        self.session_labels[service].configure(text=("Crunchyroll" if service == "cr" else "AniList") + ": conectado")
+        self.status.set("Conta conectada. Entre na outra conta para continuar." +
+                        (" " + self.storage_warning if self.storage_warning else ""))
+        self.maybe_identify_accounts()
 
     def refresh_login_ui(self):
         self.token_panel.pack_forget()
@@ -147,7 +525,7 @@ class Window:
             self.auth_frame.configure(text="Login")
             if self.token_mode:
                 self.token_panel.pack(fill="x", pady=(6, 0), before=self.source_panel)
-        self.token_login_button.configure(text="Ocultar login via token" if self.token_mode else "Login via token")
+        self.token_login_button.configure(text="Ocultar opções avançadas" if self.token_mode else "Opções avançadas")
         self.preview_button.configure(
             state="normal" if self.logged_in and not self.busy and not self.bridge else "disabled")
 
@@ -166,13 +544,20 @@ class Window:
     def logout(self):
         if self.busy:
             return
+        try:
+            self.session_store.clear()
+        except OSError:
+            messagebox.showerror("Sair", "Não foi possível apagar o login salvo. Confira as permissões da pasta de dados.")
+            return
+        self.session_records.clear()
+        self.storage_warning = ""
         self.persist_review()
         if self.bridge:
             self.end_connection()
         self.folder = None
         self.history_file.set("")
         self.clear_access()
-        self.status.set("Escolha como entrar: Chrome ou Login via token.")
+        self.status.set("Contas desconectadas e logins salvos removidos. Entre novamente para continuar.")
 
     def invalidate(self):
         self.plan = None
@@ -253,9 +638,12 @@ class Window:
         self.run_worker(job, self.accounts_ready, kind="identity")
 
     def accounts_ready(self, accounts):
+        if isinstance(self.auth["cr"], CrunchyrollSession):
+            self.save_session("cr", self.auth["cr"].record)
         self.show_identity(*accounts)
         self.status.set(f"Conectado: AniList {accounts[0]['name']} · "
-                        f"Crunchyroll {profile_label(accounts[1])}. Clique em Gerar prévia.")
+                        f"Crunchyroll {profile_label(accounts[1])}. Clique em Gerar prévia." +
+                        (" " + self.storage_warning if self.storage_warning else ""))
 
     def review_changed(self, plan, included):
         self.plan = plan
@@ -289,13 +677,15 @@ class Window:
         self.auth = {"cr": "", "al": ""}
         for label in self.auth_labels.values():
             label.configure(text="Não carregado")
+        for service, label in self.session_labels.items():
+            label.configure(text=("Crunchyroll" if service == "cr" else "AniList") + ": aguardando login")
         self.invalidate()
 
     def end_connection(self, clear=False):
         bridge, self.bridge = self.bridge, None
         if bridge:
             bridge.close()
-        self.connect_button.configure(text="Conectar pelo Chrome", state="normal")
+        self.connect_button.configure(text=self.chrome_connect_label, state="normal")
         self.preview_button.configure(state="normal" if not self.busy else "disabled")
         self.bar.stop()
         if clear:
@@ -308,7 +698,13 @@ class Window:
             self.end_connection(clear=True)
             self.status.set("Conexão cancelada.")
             return
+        saved_al = self.session_records.get("al", {})
+        keep_al = self.auth["al"] if (saved_al.get("access_token") == self.auth["al"] and
+                                     saved_al.get("expires_at", 0) > time.time() + 60) else ""
         self.clear_access()
+        if keep_al:
+            self.auth["al"] = keep_al
+            self.session_labels["al"].configure(text="AniList: OAuth conectado")
         bridge = LocalBridge(lambda service, value: self.q.put(("browser_access", bridge, service, value)))
         self.bridge = bridge
         url = bridge.start()
@@ -329,6 +725,21 @@ class Window:
             entry.pack(padx=12, pady=12)
             ttk.Button(dialog, text="Fechar", command=dialog.destroy).pack(pady=12)
 
+    def receive_browser_access(self, service, value):
+        # Mantém o OAuth duradouro quando já foi autorizado no navegador habitual.
+        saved_al = self.session_records.get("al", {})
+        if (service == "al" and self.auth["al"] and
+                saved_al.get("access_token") == self.auth["al"] and
+                saved_al.get("expires_at", 0) > time.time() + 60):
+            return
+        record = cr_record_from_fetch(value) if service == "cr" else None
+        self.auth[service] = (CrunchyrollSession(record, lambda updated: self.save_session("cr", updated))
+                              if record else value)
+        self.auth_labels[service].configure(text="Recebido do Chrome — renovável" if record else "Recebido do Chrome — temporário")
+        self.session_labels[service].configure(text=("Crunchyroll" if service == "cr" else "AniList") +
+                                              (": via extensão, renovável" if record else ": via extensão, temporário"))
+        self.invalidate()
+
     def install_extension(self):
         if self.busy or self.bridge:
             return
@@ -346,7 +757,7 @@ class Window:
                             "No Chrome, abra chrome://extensions.\n"
                             "Ative Modo do desenvolvedor e clique em Carregar sem compactação.\n"
                             "Selecione a pasta extensao_chrome que veio no ZIP.\n\n"
-                            "Depois clique em Conectar pelo Chrome no programa.\n\n"
+                            "Depois clique em Opções avançadas → Conectar pela extensão no programa.\n\n"
                             "Pasta da extensão:\n" + str(folder))
 
     def paste(self, service):
@@ -365,6 +776,7 @@ class Window:
         self.auth[service] = value
         self.clear_identities()
         self.auth_labels[service].configure(text="Carregado somente em memória")
+        self.session_labels[service].configure(text=("Crunchyroll" if service == "cr" else "AniList") + ": acesso manual")
         self.invalidate()
         self.maybe_identify_accounts()
 
@@ -386,6 +798,7 @@ class Window:
             self.auth[service] = entry.get().strip()
             self.clear_identities()
             self.auth_labels[service].configure(text="Carregado somente em memória")
+            self.session_labels[service].configure(text=("Crunchyroll" if service == "cr" else "AniList") + ": acesso manual")
             self.invalidate()
             dialog.destroy()
             self.maybe_identify_accounts()
@@ -476,9 +889,12 @@ class Window:
         count = len(plan["changes"])
         if not count:
             return
+        comment_count = sum(bool(c.get("activity_comment", "").strip()) for c in plan["changes"])
         if not messagebox.askyesno("Aplicar itens marcados",
                                   f"Aplicar somente os {count} itens marcados em {plan['user']['name']}?\n"
                                   f"Origem Crunchyroll: {profile_label(plan.get('cr_profile'))}\n\n"
+                                  + (f"Também serão enviados {comment_count} comentários nas atividades correspondentes.\n\n"
+                                     if comment_count else "") +
                                   "Os itens não marcados continuam na prévia para outro lote."):
             return
         folder = self.folder / "aplicacoes" / new_run_folder().name
@@ -506,6 +922,16 @@ class Window:
                         f"{len(result['skipped'])} já aplicadas/preservadas. "
                         f"{remaining} itens continuam no plano para outro lote. "
                         f"Total na lista: {result['total_after']}.")
+        comments = result.get("comments", [])
+        if comments:
+            published = sum(c["status"] == "published" for c in comments)
+            pending = len(comments) - published
+            self.status.set(self.status.get() + f" Comentários: {published} publicados; {pending} pendentes.")
+            if pending:
+                self.logs.configure(state="normal")
+                self.logs.insert("end", "Comentários pendentes: confira comentarios.json na pasta do lote. "
+                                 "Se o envio estiver sem confirmação, consulte a atividade antes de publicar novamente.\n")
+                self.logs.configure(state="disabled")
         self.active_batch = None
 
     def drain(self):
@@ -517,6 +943,9 @@ class Window:
                     self.logs.insert("end", event[1] + "\n")
                     self.logs.see("end")
                     self.logs.configure(state="disabled")
+                elif event[0] == "login_status":
+                    if self.busy and self.operation == "login":
+                        self.status.set(event[1])
                 elif event[0] == "avatar":
                     self.receive_avatar(event)
                 elif event[0] == "identity":
@@ -525,10 +954,8 @@ class Window:
                     if self.bridge is not event[1]:
                         continue
                     service, value = event[2], event[3]
-                    self.auth[service] = value
-                    self.auth_labels[service].configure(text="Recebido do Chrome em memória")
-                    self.invalidate()
-                    if all(self.auth.values()):
+                    self.receive_browser_access(service, value)
+                    if all(self.auth.values()) and self.bridge.received == {"al", "cr"}:
                         self.end_connection()
                         self.maybe_identify_accounts()
                 else:
@@ -551,15 +978,21 @@ class Window:
                             self.clear_identities()
                             self.set_logged_in(False)
                         self.invalidate()
-                        self.status.set("Execução interrompida. Gere outra prévia para continuar."
-                                        if self.operation == "apply" else "Não foi possível concluir a consulta.")
-                        if not self.closing:
+                        self.status.set("Login cancelado. Clique em Entrar para tentar novamente."
+                                        if self.operation == "login" and isinstance(error, Cancelled) else
+                                        "Execução interrompida. Gere outra prévia para continuar."
+                                        if self.operation == "apply" else
+                                        "Não foi possível concluir o login. Tente novamente."
+                                        if self.operation == "login" else "Não foi possível concluir a consulta.")
+                        if isinstance(error, ChromeSetupRequired) and not self.closing:
+                            self.show_chrome_setup()
+                        elif not self.closing and not isinstance(error, Cancelled):
                             messagebox.showerror("Não foi possível concluir", event[1])
         except queue.Empty:
             pass
         if self.bridge and self.bridge.expired:
             self.end_connection(clear=True)
-            self.status.set("A conexão expirou. Confira a extensão e os logins e clique em Conectar pelo Chrome novamente.")
+            self.status.set("A conexão expirou. Confira a extensão e os logins e clique em Conectar pela extensão novamente.")
         self.drain_timer = self.root.after(100, self.drain)
 
     def help(self):
@@ -583,6 +1016,8 @@ class Window:
             webbrowser.open(Path(folder).as_uri())
 
     def destroy_root(self):
+        if self.restore_timer:
+            self.root.after_cancel(self.restore_timer)
         if self.save_timer:
             self.root.after_cancel(self.save_timer)
         try:
@@ -591,6 +1026,7 @@ class Window:
             pass
         self.identity_generation += 1
         self.auth.clear()
+        self.anilist_client_credentials = None
         self.avatar_images.clear()
         self.root.destroy()
 

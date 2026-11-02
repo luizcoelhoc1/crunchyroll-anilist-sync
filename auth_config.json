@@ -1,0 +1,4 @@
+{
+  "anilist_client_id": "55193",
+  "anilist_redirect_uri": "http://127.0.0.1:8765/anilist/callback"
+}

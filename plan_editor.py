@@ -5,7 +5,7 @@ import csv
 from datetime import datetime, timezone
 from pathlib import Path
 
-from sync_anilist import STATUS_PT, SyncError, match_label, save_json
+from sync_anilist import STATUS_PT, SyncError, match_label, save_json, single_episode_change, activity_comment
 
 
 def refreshed(plan):
@@ -49,7 +49,23 @@ def edit_change(plan, media_id, status, progress):
             "before_target": copy.deepcopy(change["after"]), "after_target": target})
         change["after"] = target
         change["user_edited"] = True
+        if not single_episode_change(change):
+            change.pop("activity_comment", None)
     return refreshed(result)
+
+
+def set_activity_comment(plan, media_id, text):
+    result = copy.deepcopy(plan)
+    change = next((c for c in result["changes"] if c["mediaId"] == media_id), None)
+    if change is None:
+        raise SyncError("A entrada não está neste plano.")
+    change["activity_comment"] = text
+    clean = activity_comment(change)
+    if clean:
+        change["activity_comment"] = clean
+    else:
+        change.pop("activity_comment", None)
+    return result
 
 
 def remove_changes(plan, media_ids):
@@ -96,6 +112,7 @@ def consume_verified(plan, original, media_ids, confirmed_entries):
             c["after"] = copy.deepcopy(target)
             c.pop("suggested_after", None)
             c.pop("user_edited", None)
+            c.pop("activity_comment", None)  # O texto era para o episódio do lote anterior.
             c["continuation"] = True
             remaining.append(c)
             base["changes"] = [copy.deepcopy(c) if old["mediaId"] == mid else old
@@ -122,10 +139,10 @@ def save_review(folder, plan, media_ids, applied_ids=()):
     save_json(folder / "plano-revisado.json", selected)
     with (folder / "alteracoes-revisadas.csv").open("w", newline="", encoding="utf-8-sig") as f:
         writer = csv.writer(f, delimiter=";")
-        writer.writerow(["Aplicar", "Anime", "Status", "Progresso", "Total", "Correspondencia", "Link"])
+        writer.writerow(["Aplicar", "Anime", "Status", "Progresso", "Total", "Correspondencia", "Link", "Comentario na atividade"])
         for c in plan["changes"]:
             writer.writerow(["Sim" if c["mediaId"] in media_ids else "Nao", c["title"],
                              STATUS_PT[c["after"]["status"]], c["after"]["progress"],
                              c.get("episodes"), match_label(c),
-                             f"https://anilist.co/anime/{c['mediaId']}"])
+                             f"https://anilist.co/anime/{c['mediaId']}", c.get("activity_comment", "")])
     return selected
