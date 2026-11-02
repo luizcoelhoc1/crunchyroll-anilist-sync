@@ -2,13 +2,15 @@ version: '3'
 
 vars:
   VERSION: ''
+  PUBLISH: 'true'
 
 tasks:
   compile:
-    desc: Gera o instalador MSI do Windows com Python e dependências incluídos
+    desc: Compila o MSI, cria commit/tag e publica a release no GitHub (PUBLISH=false para build local)
     dir: '{{.TASKFILE_DIR}}'
     env:
       APP_BUILD_VERSION: '{{.VERSION}}'
+      APP_PUBLISH: '{{.PUBLISH}}'
     preconditions:
       - sh: python -c "import sys, platform; assert sys.platform == 'win32' and platform.machine() == 'AMD64' and sys.maxsize > 2**32 and (3, 10) <= sys.version_info < (3, 16)"
         msg: 'A compilação requer Windows x64 e Python 3.10 a 3.15 (64 bits) no PATH.'
