@@ -1,5 +1,9 @@
 # Crunchyroll → AniList — Python
 
+No Windows, os menus e controles de minimizar/maximizar/fechar compartilham uma única barra. Arraste pelo título para mover a janela ou dê dois cliques para maximizar/restaurar. As contas ficam fixas no rodapé da lateral: clique no avatar Crunchyroll para abrir seu login ou no avatar AniList para iniciar a autorização correspondente. Os menus e itens selecionados usam cores, sem molduras claras.
+
+**Interface escura:** os avatares e estados das contas ficam empilhados na lateral, junto aos atalhos de Revisão, Pendências e Progresso. Os menus **Arquivo**, **Contas**, **Sincronizar** e **Ajuda** ficam no topo. **Arquivo → Pasta da execução** abre os relatórios. **Opções avançadas** abre uma janela separada com os métodos alternativos de conexão. Reabra **Iniciar.cmd** depois de atualizar os arquivos para carregar a nova interface.
+
 **Login direto no aplicativo:** **Entrar no Crunchyroll** pede e-mail e senha em campos locais, depois mostra os perfis retornados pela API. Não abre navegador. **Autorizar AniList** continua usando o navegador habitual. O Windows pode lembrar os tokens e o app renova o acesso Crunchyroll automaticamente. Navegador e extensão ficam em **Opções avançadas**.
 
 **Novo:** cartões com nicks e avatares das contas, seleção de itens, edição de alvo e exclusão local do plano. É possível aplicar por lotes e continuar com o restante na mesma prévia. Veja **ATUALIZACAO_1_4.md**.
@@ -100,8 +104,8 @@ Os acessos manuais e o acesso web AniList recebido pela extensão ficam só em m
 
 1. Com os acessos carregados, confira os nicks detectados nos cartões e clique em **Gerar prévia**.
 2. Confira **Revisar plano** e **Pendências e itens ignorados**. Essa etapa só consulta as APIs.
-3. Use as caixas **Aplicar** para escolher o lote. **Editar alvo** muda status/progresso; **Comentar** permite incluir uma resposta na atividade quando o avanço for de exatamente 1 episódio. **Excluir do plano** retira linhas localmente. **Restaurar plano** desfaz a revisão local dos itens restantes.
-4. Clique em **Aplicar marcados (N)** e confirme a conta e a quantidade.
+3. Use as caixas **Aplicar** ou o menu **Selecionar** para escolher o lote. **Editar alvo** muda status/progresso; **Comentar episódio** permite incluir uma resposta na atividade quando o avanço for de exatamente 1 episódio. No menu **Plano**, **Excluir do plano** retira linhas localmente e **Restaurar plano** desfaz a revisão local dos itens restantes.
+4. Clique em **Aplicar selecionados (N)** e confirme a conta e a quantidade.
 5. Aguarde a conferência. Os itens restantes continuam disponíveis para outro lote. **Abrir pasta da execução** mostra os relatórios.
 
 Durante a consulta e a aplicação, você pode usar outros programas. Evite editar a mesma lista do AniList enquanto a aplicação estiver em andamento. A lista é relida antes da aplicação; se uma entrada a alterar mudou desde a prévia, o programa pede uma prévia nova.
@@ -127,7 +131,7 @@ A revisão automática usa **revisao.json**, **plano-revisado.json** (somente ma
 
 ### Comentário na atualização de um episódio
 
-Selecione uma linha com aumento de exatamente 1 episódio (por exemplo, 3 → 4) e clique em **Comentar**. O mesmo campo aparece em **Editar alvo**. Escreva de 2 a 8000 caracteres e salve no plano. Deixar em branco remove o comentário. A coluna **Comentário na atividade** mostra o texto; salvar a revisão não publica nada. A confirmação de **Aplicar marcados** informa quantos comentários serão enviados no lote.
+Selecione uma linha com aumento de exatamente 1 episódio (por exemplo, 3 → 4) e clique em **Comentar episódio**. O mesmo campo aparece em **Editar alvo**. Escreva de 2 a 8000 caracteres e salve no plano. Deixar em branco remove o comentário. A coluna **Comentário na atividade** mostra o texto; salvar a revisão não publica nada. A confirmação de **Aplicar selecionados** informa quantos comentários serão enviados no lote.
 
 Após conferir a gravação do progresso, o app compara as atividades daquele anime antes e depois da alteração. Se encontrar uma única atividade nova ou atualizada que corresponda ao episódio, envia o texto como resposta, pelo recurso [SaveActivityReply do AniList](https://docs.anilist.co/reference/mutation). Isso não modifica as observações pessoais da lista nem cria uma publicação de status separada. O AniList pode agrupar episódios na mesma atividade, e a resposta ficará nessa atividade atualizada.
 

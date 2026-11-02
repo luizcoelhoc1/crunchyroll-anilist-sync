@@ -1,6 +1,7 @@
 """Estados da interface com Tk oculto e contas fictícias; não abre sites."""
 from pathlib import Path
 import json
+import gc
 import os
 import sys
 import time
@@ -45,6 +46,9 @@ class LoginUiTests(unittest.TestCase):
     def tearDown(self):
         if hasattr(self, "window"):
             self.window.destroy_root()
+            self.window = self.root = None
+            # Avoid collecting old Tcl interpreters on a later server thread.
+            gc.collect()
 
     def test_restore_keeps_saved_sessions_and_verifies_accounts(self):
         self.store.load.return_value = {
@@ -56,6 +60,40 @@ class LoginUiTests(unittest.TestCase):
         self.assertIsInstance(self.window.auth["cr"], CrunchyrollSession)
         identify.assert_called_once()
         self.assertFalse(self.window.logged_in)  # Ainda depende de conferir as APIs.
+
+    def test_avatar_clicks_open_corresponding_login_even_when_connected(self):
+        self.window.set_logged_in(True)
+        self.root.deiconify()
+        self.root.update()
+        with patch.object(self.window, "show_cr_password_login") as cr_login, \
+                patch.object(self.window, "run_worker") as worker:
+            self.window.avatar_canvases["cr"].event_generate("<Button-1>")
+            cr_login.assert_called_once()
+            worker.assert_not_called()
+            self.window.avatar_canvases["al"].event_generate("<Button-1>")
+            worker.assert_called_once()
+            self.assertEqual(worker.call_args.kwargs["kind"], "login")
+
+    def test_flat_menu_invokes_once_and_closes_with_escape(self):
+        from desktop_menu import MenuButton
+        action = Mock()
+        button = MenuButton(self.root, text="Menu de teste", entries=[("Ação", action)])
+        button.pack()
+        self.root.deiconify()
+        self.root.update()
+        button.invoke()
+        self.root.update()
+        button.popup.winfo_children()[0].invoke()
+        action.assert_called_once()
+        self.assertIsNone(button.popup)
+        button.invoke()
+        self.root.update()
+        button.popup.event_generate("<Escape>")
+        self.assertIsNone(button.popup)
+        button.configure(state="disabled")
+        button.invoke()
+        self.assertIsNone(button.popup)
+        action.assert_called_once()
 
     def test_expired_anilist_is_not_restored_as_logged_in(self):
         self.store.load.return_value = {"al": {"access_token": "expired", "expires_at": time.time() - 1}}

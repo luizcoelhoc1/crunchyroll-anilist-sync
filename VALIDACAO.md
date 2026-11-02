@@ -1,6 +1,14 @@
-# Validação — 01/11/2026
+# Validação — 02/11/2026
 
 Ambiente: Windows, Python 3.13.3. O código usa apenas a biblioteca padrão e declara compatibilidade com Python 3.10 ou superior; outras versões não foram executadas nesta validação.
+
+## Interface escura — código atual
+
+Revisão visual: barra de título integrada aos menus no Windows, contas ancoradas na base da lateral, divisórias removidas e dropdowns próprios sem moldura nativa. A implementação da área de título segue o [exemplo de frame personalizado da Microsoft](https://learn.microsoft.com/windows/win32/dwm/customframe). Uma instância isolada confirmou maximização, restauração, minimização e redimensionamento, com capturas locais de janelas normal e menor. **222 testes Python passaram, sem ignorados**, incluindo comandos dos menus, fechamento por Escape e cliques nos avatares com login e worker simulados, sem autenticação real.
+
+**220 testes Python passaram, sem ignorados**, após a reorganização visual. Capturas locais de uma instância com dados fictícios foram inspecionadas em 1380 × 900 e 1050 × 720, incluindo login, contas conectadas, plano com três animes, editor de comentário e opções avançadas. A navegação lateral e as abas foram exercitadas preservando o plano. Nenhuma conta real foi acessada ou atualizada.
+
+O tema cobre tabelas, campos, menus, editor e janelas próprias do aplicativo; seletores de arquivos e alertas nativos seguem o Windows. Os testes de Tk agora liberam seus objetos na thread principal antes dos testes de servidores locais, evitando uma falha intermitente de coleta do interpretador Tcl numa thread secundária.
 
 ## Comentários em atualizações de um episódio — código atual
 

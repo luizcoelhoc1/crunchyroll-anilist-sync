@@ -1,5 +1,6 @@
 """Comentários opcionais: planos locais e AniList fictício, sem publicações reais."""
 import copy
+import gc
 import json
 from pathlib import Path
 import sys
@@ -203,11 +204,17 @@ class CommentUiTests(unittest.TestCase):
         except tk.TclError as exc:
             self.skipTest(str(exc))
         self.root.withdraw()
-        self.addCleanup(self.root.destroy)
         self.pane = ReviewPane(self.root, Mock())
         self.plan, _ = sample()
         self.pane.load(self.plan)
         self.pane.table.selection_set("10")
+
+    def tearDown(self):
+        if hasattr(self, "pane"):
+            self.root.destroy()
+            self.pane = self.root = None
+            # Tk objects must be reclaimed here, before later HTTP worker tests.
+            gc.collect()
 
     def test_comment_editor_saves_only_local_draft_and_table_shows_it(self):
         self.pane.comment_selected()

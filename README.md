@@ -2,9 +2,11 @@
 
 Aplicativo Python para comparar o histórico do Crunchyroll com sua lista do AniList e aplicar atualizações revisadas.
 
+A interface usa tema escuro inspirado no VS Code, menus no topo e uma lateral com navegação, avatares e estado das contas. **Gerar prévia** e **Aplicar selecionados** ficam em destaque; **Comentar episódio** abre o comentário opcional da atualização. As opções de seleção e restauração ficam nos menus **Selecionar** e **Plano**, acima da tabela.
+
 **Código atual:** AniList no navegador habitual, sessões protegidas no Windows e renovação do Crunchyroll. [Instruções completas](LEIA-ME.md) · [Usar o Chrome já conectado](CONEXAO_CHROME.md)
 
-Última versão publicada: [1.5](https://github.com/luizcoelhoc1/crunchyroll-anilist-sync/releases/tag/v1.5). As mudanças de login descritas aqui ainda não fazem parte desse ZIP.
+Última versão publicada: [1.5](https://github.com/luizcoelhoc1/crunchyroll-anilist-sync/releases/tag/v1.5). A nova interface e as mudanças de login descritas aqui ainda não fazem parte desse ZIP.
 
 ## Usar no Windows
 

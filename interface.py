@@ -16,7 +16,8 @@ from chrome_profile import ChromeSetupRequired, open_connection_settings
 from session_store import SessionStore, CrunchyrollSession, ClientSecretStore
 from avatars import avatar_url, avatar_photo, download_avatar
 from plan_editor import save_review
-from review_pane import ReviewPane
+from desktop_layout import build_workspace
+from desktop_theme import center_dialog
 from sync_anilist import (AniList, Crunchyroll, ROOT, STATUS_PT, SyncError, Cancelled,
                           apply_plan, build_plan, load_json, load_mappings,
                           new_run_folder, normalize_history, preview_live, write_preview, match_label, profile_label, save_json)
@@ -26,9 +27,9 @@ class Window:
     def __init__(self, root):
         self.root = root
         root.title("Crunchyroll → AniList")
-        root.geometry(f"{min(1200, max(950, root.winfo_screenwidth()-80))}x"
-                      f"{min(920, max(650, root.winfo_screenheight()-110))}")
-        root.minsize(850, 650)
+        root.geometry(f"{min(1380, max(1050, root.winfo_screenwidth()-100))}x"
+                      f"{min(940, max(720, root.winfo_screenheight()-110))}")
+        root.minsize(1050, 720)
         self.q = queue.Queue()
         self.stop = threading.Event()
         self.auth = {"cr": "", "al": ""}
@@ -51,145 +52,11 @@ class Window:
         self.identity_generation = 0
         self.avatar_urls = {"al": None, "cr": None}
         self.avatar_images = {}
-        self.user = tk.StringVar(value="Detectado ao gerar a prévia")
-        self.profile = tk.StringVar(value="Detectado ao gerar a prévia")
+        self.user = tk.StringVar(value="Não conectado")
+        self.profile = tk.StringVar(value="Não conectado")
         self.history_file = tk.StringVar()
         self.status = tk.StringVar(value="Autorize o AniList no seu Chrome habitual e conecte o Crunchyroll; depois gere uma prévia.")
-        style = ttk.Style(root)
-        if "vista" in style.theme_names():
-            style.theme_use("vista")
-        outer = ttk.Frame(root, padding=20)
-        outer.pack(fill="both", expand=True)
-        ttk.Label(outer, text="Crunchyroll → AniList", font=("Segoe UI", 21, "bold")).pack(anchor="w")
-        ttk.Label(outer, text="Histórico por API · temporadas e especiais separados · notas e avanços preservados",
-                  font=("Segoe UI", 10)).pack(anchor="w", pady=(3, 16))
-        self.auth_frame = ttk.LabelFrame(outer, text="Login", padding=12)
-        auth_frame = self.auth_frame
-        auth_frame.pack(fill="x")
-        self.auth_labels = {}
-        self.option_widgets = []
-        self.login_panel = ttk.Frame(auth_frame)
-        self.login_panel.pack(fill="x")
-        auto_row = ttk.Frame(self.login_panel)
-        auto_row.pack(fill="x", pady=(0, 6))
-        for service, title in (("al", "Autorizar AniList"), ("cr", "Entrar no Crunchyroll")):
-            button = ttk.Button(auto_row, text=title, command=lambda s=service: self.sign_in(s))
-            button.pack(side="left", padx=(0, 8))
-            self.option_widgets.append(button)
-        self.chrome_connect_label = "Conectar pela extensão"
-        self.token_login_button = ttk.Button(auto_row, text="Opções avançadas", command=self.toggle_token_login)
-        self.token_login_button.pack(side="left", padx=8)
-        self.option_widgets.append(self.token_login_button)
-        self.remember = tk.BooleanVar(value=self.keep_sessions)
-        remember_button = ttk.Checkbutton(self.login_panel, text="Manter contas conectadas neste Windows",
-                                         variable=self.remember, command=self.change_remember)
-        remember_button.pack(anchor="w")
-        if os.name == "nt":
-            self.option_widgets.append(remember_button)
-        else:
-            remember_button.configure(state="disabled")
-        self.session_labels = {}
-        session_row = ttk.Frame(self.login_panel)
-        session_row.pack(fill="x", pady=(4, 0))
-        for service, name in (("cr", "Crunchyroll"), ("al", "AniList")):
-            label = ttk.Label(session_row, text=name + ": aguardando login")
-            label.pack(side="left", padx=(0, 18))
-            self.session_labels[service] = label
-        self.token_panel = ttk.LabelFrame(self.login_panel, text="Métodos alternativos", padding=10)
-        legacy_row = ttk.Frame(self.token_panel)
-        legacy_row.pack(fill="x", pady=(0, 6))
-        self.connect_button = ttk.Button(legacy_row, text=self.chrome_connect_label, command=self.connect_chrome)
-        self.connect_button.pack(side="left", padx=(0, 8))
-        install_button = ttk.Button(legacy_row, text="Instalar extensão (opcional)", command=self.install_extension)
-        install_button.pack(side="left", padx=8)
-        self.option_widgets.append(install_button)
-        client_button = ttk.Button(legacy_row, text="Configurar AniList", command=self.configure_anilist)
-        client_button.pack(side="left", padx=8)
-        self.option_widgets.append(client_button)
-        current_button = ttk.Button(legacy_row, text="Crunchyroll: perfil do Chrome (avançado)",
-                                    command=lambda: self.sign_in("cr", browser_mode="current"))
-        current_button.pack(side="left", padx=8)
-        self.option_widgets.append(current_button)
-        browser_row = ttk.Frame(self.token_panel)
-        browser_row.pack(fill="x", pady=(0, 6))
-        browser_button = ttk.Button(browser_row, text="Crunchyroll: janela do navegador",
-                                    command=lambda: self.sign_in("cr", browser_mode="isolated"))
-        browser_button.pack(side="left", padx=(0, 8))
-        self.edge_login_button = ttk.Button(browser_row, text="Tentar Crunchyroll com Edge",
-                                            command=lambda: self.sign_in("cr", browser_mode="edge"))
-        self.edge_login_button.pack(side="left")
-        self.option_widgets.extend((browser_button, self.edge_login_button))
-        ttk.Label(self.token_panel,
-                  text="Cole a requisição copiada do navegador ou digite o token de cada serviço.").pack(anchor="w", pady=(0, 6))
-        for service, name in (("cr", "Crunchyroll"), ("al", "AniList")):
-            row = ttk.Frame(self.token_panel)
-            row.pack(fill="x", pady=3)
-            ttk.Label(row, text=name, width=15).pack(side="left")
-            ttk.Button(row, text="Colar acesso", command=lambda s=service: self.paste(s)).pack(side="left")
-            ttk.Button(row, text="Digitar token", command=lambda s=service: self.token_dialog(s)).pack(side="left", padx=5)
-            self.auth_labels[service] = ttk.Label(row, text="Não carregado")
-            self.auth_labels[service].pack(side="left", padx=10)
-        self.accounts_panel = ttk.Frame(auth_frame)
-        opts = ttk.Frame(self.accounts_panel)
-        opts.pack(fill="x")
-        opts.columnconfigure((0, 1), weight=1, uniform="accounts")
-        self.avatar_canvases = {}
-        for index, (service, title, variable) in enumerate((
-            ("al", "AniList — destino", self.user), ("cr", "Crunchyroll — origem", self.profile))):
-            card = ttk.LabelFrame(opts, text=title, padding=8)
-            card.grid(row=0, column=index, sticky="nsew", padx=(0, 8) if index == 0 else 0)
-            canvas = tk.Canvas(card, width=56, height=56, highlightthickness=0, background="white")
-            canvas.pack(side="left", padx=(0, 10))
-            self.avatar_canvases[service] = canvas
-            ttk.Label(card, textvariable=variable, font=("Segoe UI", 11, "bold"),
-                      wraplength=350).pack(side="left", fill="x", expand=True)
-            self.reset_avatar(service)
-        account_actions = ttk.Frame(self.accounts_panel)
-        account_actions.pack(fill="x", pady=(6, 0))
-        self.logout_button = ttk.Button(account_actions, text="Sair / trocar contas", command=self.logout)
-        self.logout_button.pack(side="right")
-        self.option_widgets.append(self.logout_button)
-        # O usuário pode desligar a persistência mesmo depois de conectar as contas.
-        account_remember = ttk.Checkbutton(account_actions, text="Manter contas conectadas neste Windows",
-                                          variable=self.remember, command=self.change_remember)
-        account_remember.pack(side="left")
-        if os.name == "nt":
-            self.option_widgets.append(account_remember)
-        else:
-            account_remember.configure(state="disabled")
-        self.source_panel = ttk.Frame(self.login_panel)
-        source = self.source_panel
-        source.pack(fill="x", pady=(8, 0))
-        ttk.Button(source, text="Importar histórico JSON", command=self.choose_file).pack(side="left")
-        ttk.Label(source, textvariable=self.history_file).pack(side="left", padx=8)
-        api_button = ttk.Button(source, text="Usar API", command=lambda: self.history_file.set(""))
-        api_button.pack(side="right")
-        self.option_widgets.append(api_button)
-        controls = ttk.Frame(outer)
-        controls.pack(fill="x", pady=14)
-        self.preview_button = ttk.Button(controls, text="2. Gerar prévia", command=self.preview)
-        self.preview_button.pack(side="left")
-        self.apply_button = ttk.Button(controls, text="3. Aplicar alterações", state="disabled", command=self.apply)
-        self.apply_button.pack(side="left", padx=8)
-        self.cancel_button = ttk.Button(controls, text="Interromper", state="disabled", command=self.stop.set)
-        self.cancel_button.pack(side="left")
-        ttk.Button(controls, text="Ajuda", command=self.help).pack(side="right")
-        ttk.Button(controls, text="Abrir pasta da execução", command=self.open_folder).pack(side="right", padx=8)
-        self.status_label = ttk.Label(outer, textvariable=self.status, wraplength=1020,
-                                      font=("Segoe UI", 10, "bold"))
-        self.status_label.pack(anchor="w", fill="x")
-        outer.bind("<Configure>", lambda e: self.status_label.configure(wraplength=max(400, e.width)))
-        self.bar = ttk.Progressbar(outer, mode="indeterminate")
-        self.bar.pack(fill="x", pady=(8, 12))
-        notebook = ttk.Notebook(outer)
-        notebook.pack(fill="both", expand=True)
-        self.review = ReviewPane(notebook, self.review_changed)
-        notebook.add(self.review, text="Revisar plano")
-        self.table = self.review.table
-        self.pending = tk.Text(notebook, wrap="word", state="disabled", font=("Segoe UI", 10))
-        notebook.add(self.pending, text="Pendências e itens ignorados")
-        self.logs = tk.Text(notebook, wrap="word", state="disabled", font=("Consolas", 10))
-        notebook.add(self.logs, text="Progresso")
+        build_workspace(self)
         self.history_file.trace_add("write", lambda *_: self.invalidate())
         root.protocol("WM_DELETE_WINDOW", self.close)
         self.refresh_login_ui()
@@ -514,17 +381,19 @@ class Window:
         self.maybe_identify_accounts()
 
     def refresh_login_ui(self):
-        self.token_panel.pack_forget()
+        self.advanced_window.withdraw()
         if self.logged_in:
             self.login_panel.pack_forget()
             self.accounts_panel.pack(fill="x")
-            self.auth_frame.configure(text="Contas conectadas")
+            self.auth_frame.configure(text="CONEXÕES ATIVAS")
         else:
             self.accounts_panel.pack_forget()
             self.login_panel.pack(fill="x")
-            self.auth_frame.configure(text="Login")
+            self.auth_frame.configure(text="CONECTAR CONTAS")
             if self.token_mode:
-                self.token_panel.pack(fill="x", pady=(6, 0), before=self.source_panel)
+                center_dialog(self.advanced_window, self.root)
+                self.advanced_window.deiconify()
+                self.advanced_window.lift()
         self.token_login_button.configure(text="Ocultar opções avançadas" if self.token_mode else "Opções avançadas")
         self.preview_button.configure(
             state="normal" if self.logged_in and not self.busy and not self.bridge else "disabled")
@@ -572,8 +441,8 @@ class Window:
         self.avatar_images.clear()
         for service in self.avatar_canvases:
             self.reset_avatar(service)
-        self.user.set("Detectado ao gerar a prévia")
-        self.profile.set("Detectado ao gerar a prévia")
+        self.user.set("Não conectado")
+        self.profile.set("Não conectado")
 
     def show_identity(self, user, cr_profile):
         self.user.set(f"{user['name']} (ID {user['id']})")
@@ -647,7 +516,7 @@ class Window:
 
     def review_changed(self, plan, included):
         self.plan = plan
-        self.apply_button.configure(text=f"Aplicar marcados ({len(included)})",
+        self.apply_button.configure(text=f"✓  Aplicar selecionados ({len(included)})",
                                     state="normal" if included and not self.busy else "disabled")
         if not self.busy:
             self.status.set(f"Prévia: {len(included)} marcados de {len(plan['changes'])} itens restantes. "
@@ -879,7 +748,7 @@ class Window:
         s = plan["summary"]
         self.status.set(f"Prévia pronta: {s['new']} adições, {s['updated']} atualizações, "
                         f"{s['pending']} pendências. Nenhuma alteração remota aplicada.")
-        self.apply_button.configure(text=f"Aplicar marcados ({len(self.review.included)})",
+        self.apply_button.configure(text=f"✓  Aplicar selecionados ({len(self.review.included)})",
                                     state="normal" if self.review.included else "disabled")
 
     def apply(self):

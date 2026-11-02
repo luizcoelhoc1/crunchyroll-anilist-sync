@@ -5,6 +5,8 @@ from tkinter import messagebox, ttk
 
 from plan_editor import edit_change, refreshed, remove_changes, selected_plan, consume_verified, set_activity_comment
 from sync_anilist import STATUS_PT, SyncError, match_label, single_episode_change
+from desktop_theme import BLUE, MUTED, center_dialog
+from desktop_menu import MenuButton
 
 
 class ReviewPane(ttk.Frame):
@@ -19,19 +21,22 @@ class ReviewPane(ttk.Frame):
         self.buttons = []
         bar = ttk.Frame(self)
         bar.pack(fill="x", pady=(4, 8))
-        for text, command in (
-            ("Marcar todos", lambda: self.mark_all(True)),
-            ("Desmarcar todos", lambda: self.mark_all(False)),
-            ("Somente selecionados", self.only_selection),
-            ("Editar alvo", self.edit_selected),
-            ("Comentar", self.comment_selected),
-            ("Excluir do plano", self.exclude_selected),
-            ("Restaurar plano", self.restore)):
-            button = ttk.Button(bar, text=text, command=command, state="disabled")
-            button.pack(side="left", padx=(0, 5))
+        for text, command in (("Editar alvo", self.edit_selected), ("Comentar episódio", self.comment_selected)):
+            button = ttk.Button(bar, text=text, command=command, state="disabled", style="Small.TButton")
+            button.pack(side="left", padx=(0, 8), pady=3)
+            self.buttons.append(button)
+        for title, entries in (("Selecionar", (("Marcar todos", lambda: self.mark_all(True)),
+                                               ("Desmarcar todos", lambda: self.mark_all(False)),
+                                               ("Somente selecionados", self.only_selection))),
+                               ("Plano", (("Excluir do plano", self.exclude_selected),
+                                          ("Restaurar plano", self.restore)))):
+            button = MenuButton(bar, text=title + "  ▾", state="disabled", style="Small.TButton", entries=entries)
+            button.pack(side="left", padx=(0, 8), pady=3)
             self.buttons.append(button)
         self.detail = tk.StringVar(value="Gere uma prévia para revisar.")
-        ttk.Label(self, textvariable=self.detail, wraplength=1080).pack(anchor="w", pady=(0, 8))
+        detail_label = ttk.Label(self, textvariable=self.detail, wraplength=1080, style="Muted.TLabel")
+        detail_label.pack(anchor="w", pady=(0, 8))
+        self.bind("<Configure>", lambda event: detail_label.configure(wraplength=max(200, event.width - 12)))
         frame = ttk.Frame(self)
         frame.pack(fill="both", expand=True)
         self.table = ttk.Treeview(frame, columns=("include", "title", "before", "after", "match", "comment"),
@@ -40,7 +45,7 @@ class ReviewPane(ttk.Frame):
                                   ("before", "Antes", 150), ("after", "Depois", 150),
                                   ("match", "Correspondência", 150), ("comment", "Comentário na atividade", 210)):
             self.table.heading(key, text=label)
-            self.table.column(key, width=width, stretch=key == "title",
+            self.table.column(key, width=width, minwidth=240 if key == "title" else width, stretch=key == "title",
                               anchor="center" if key == "include" else "w")
         self.table.grid(row=0, column=0, sticky="nsew")
         scroll = ttk.Scrollbar(frame, orient="vertical", command=self.table.yview)
@@ -51,7 +56,24 @@ class ReviewPane(ttk.Frame):
         frame.columnconfigure(0, weight=1)
         self.table.configure(xscrollcommand=horizontal.set)
         self.table.configure(yscrollcommand=scroll.set)
-        self.table.tag_configure("edited", foreground="#005c9e")
+        self.table.tag_configure("edited", foreground=BLUE)
+        self.table.tag_configure("stripe", background="#242424")
+        self.empty = ttk.Frame(self.table, padding=24)
+        self.empty_icon = ttk.Label(self.empty, text="⇄", foreground=BLUE, font=("Segoe UI", 34))
+        self.empty_icon.pack()
+        self.empty_title = ttk.Label(self.empty, text="Sua revisão começa aqui", font=("Segoe UI", 14, "bold"))
+        self.empty_title.pack(pady=(8, 6))
+        self.empty_hint = ttk.Label(self.empty, text="Conecte as contas e clique em Gerar prévia.", foreground=MUTED)
+        self.empty_hint.pack()
+        self.empty.place(relx=.5, rely=.55, anchor="center")
+        def fit_empty(event):
+            compact = event.height < 240
+            self.empty.configure(padding=8 if compact else 24)
+            if compact:
+                self.empty_icon.pack_forget()
+            else:
+                self.empty_icon.pack(before=self.empty_title)
+        self.table.bind("<Configure>", fit_empty)
         self.table.bind("<Button-1>", self.click)
         self.table.bind("<space>", self.toggle_selected)
         self.table.bind("<Double-1>", lambda e: self.edit_selected()
@@ -64,6 +86,9 @@ class ReviewPane(ttk.Frame):
         self.applied.clear()
         self.table.delete(*self.table.get_children())
         self.detail.set("Gere uma prévia para revisar.")
+        self.empty_title.configure(text="Sua revisão começa aqui")
+        self.empty_hint.configure(text="Conecte as contas e clique em Gerar prévia.")
+        self.empty.place(relx=.5, rely=.55, anchor="center")
         self.set_busy(self.busy)
 
     def load(self, plan):
@@ -86,7 +111,13 @@ class ReviewPane(ttk.Frame):
         self.table.delete(*self.table.get_children())
         valid = {c["mediaId"] for c in self.plan["changes"]}
         self.included.intersection_update(valid)
-        for c in self.plan["changes"]:
+        if valid:
+            self.empty.place_forget()
+        else:
+            self.empty_title.configure(text="Tudo em dia")
+            self.empty_hint.configure(text="Nenhuma alteração restante neste plano.")
+            self.empty.place(relx=.5, rely=.55, anchor="center")
+        for index, c in enumerate(self.plan["changes"]):
             b, a, mid = c.get("before"), c["after"], c["mediaId"]
             before = f"{STATUS_PT[b['status']]} · {b['progress']}" if b else "Ausente"
             after = f"{STATUS_PT[a['status']]} · {a['progress']}"
@@ -97,7 +128,7 @@ class ReviewPane(ttk.Frame):
             self.table.insert("", "end", iid=str(mid),
                               values=("☑" if mid in self.included else "☐", c["title"],
                                       before, after, match_label(c), c.get("activity_comment", "").replace("\n", " ")),
-                              tags=("edited",) if c.get("user_edited") else ())
+                              tags=(("stripe",) if index % 2 else ()) + (("edited",) if c.get("user_edited") else ()))
         keep = old_selection.intersection(map(str, valid))
         if keep:
             self.table.selection_set(*keep)
@@ -244,5 +275,6 @@ class ReviewPane(ttk.Frame):
             dialog.destroy()
         buttons = ttk.Frame(outer)
         buttons.pack(fill="x")
-        ttk.Button(buttons, text="Salvar no plano", command=accept).pack(side="left")
+        ttk.Button(buttons, text="Salvar no plano", command=accept, style="Primary.TButton").pack(side="left")
         ttk.Button(buttons, text="Cancelar", command=dialog.destroy).pack(side="left", padx=8)
+        center_dialog(dialog, self)
