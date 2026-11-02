@@ -1,8 +1,7 @@
 """Inicializador sem console no Windows."""
-from pathlib import Path
 import sys
+from app_paths import RESOURCE_ROOT as ROOT, DATA_ROOT
 
-ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
 try:
@@ -14,7 +13,8 @@ except Exception:
     import traceback
     details = traceback.format_exc()
     try:
-        (ROOT / "erro-inicializacao.txt").write_text(details, encoding="utf-8")
+        DATA_ROOT.mkdir(parents=True, exist_ok=True)
+        (DATA_ROOT / "erro-inicializacao.txt").write_text(details, encoding="utf-8")
     except OSError:
         pass
     try:

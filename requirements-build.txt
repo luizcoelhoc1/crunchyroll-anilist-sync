@@ -1,0 +1,3 @@
+# Ferramentas isoladas em .venv-build; não alteram o Python global.
+cx-Freeze==8.7.4
+Pillow==13.0.0

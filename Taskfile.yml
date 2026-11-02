@@ -1,0 +1,27 @@
+version: '3'
+
+vars:
+  VERSION: '1.6.0'
+
+tasks:
+  compile:
+    desc: Gera o instalador MSI do Windows com Python e dependências incluídos
+    dir: '{{.TASKFILE_DIR}}'
+    env:
+      APP_BUILD_VERSION: '{{.VERSION}}'
+    preconditions:
+      - sh: python -c "import sys, platform; assert sys.platform == 'win32' and platform.machine() == 'AMD64' and sys.maxsize > 2**32 and (3, 10) <= sys.version_info < (3, 16)"
+        msg: 'A compilação requer Windows x64 e Python 3.10 a 3.15 (64 bits) no PATH.'
+    cmds:
+      - task: _build-env
+      - .venv-build/Scripts/python.exe -m pip install --disable-pip-version-check -r requirements-build.txt
+      - .venv-build/Scripts/python.exe packaging/windows.py --quiet bdist_msi
+      - .venv-build/Scripts/python.exe packaging/verify.py
+
+  _build-env:
+    internal: true
+    dir: '{{.TASKFILE_DIR}}'
+    status:
+      - python -c "from pathlib import Path; assert Path('.venv-build/Scripts/python.exe').is_file()"
+    cmds:
+      - python -m venv .venv-build

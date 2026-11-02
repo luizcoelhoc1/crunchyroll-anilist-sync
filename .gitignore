@@ -7,6 +7,11 @@ erro-inicializacao.txt
 # Dados locais e ambientes de desenvolvimento
 .venv/
 venv/
+.venv-build/
+build/
+dist/
+*.egg-info/
+*.msi
 .env.*
 !.env.example
 .pytest_cache/

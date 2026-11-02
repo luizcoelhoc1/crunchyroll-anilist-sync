@@ -18,6 +18,7 @@ from avatars import avatar_url, avatar_photo, download_avatar
 from plan_editor import save_review
 from desktop_layout import build_workspace
 from desktop_theme import center_dialog
+from app_paths import DATA_ROOT
 from sync_anilist import (AniList, Crunchyroll, ROOT, STATUS_PT, SyncError, Cancelled,
                           apply_plan, build_plan, load_json, load_mappings,
                           new_run_folder, normalize_history, preview_live, write_preview, match_label, profile_label, save_json)
@@ -877,7 +878,8 @@ class Window:
             webbrowser.open(path.as_uri())
 
     def open_folder(self):
-        folder = self.folder if self.folder and self.folder.exists() else ROOT
+        folder = self.folder if self.folder and self.folder.exists() else DATA_ROOT
+        folder.mkdir(parents=True, exist_ok=True)
         if os.name == "nt":
             os.startfile(folder)
         else:

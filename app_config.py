@@ -10,6 +10,7 @@ from urllib.parse import urlsplit
 
 from oauth_login import REDIRECT_URI
 from sync_anilist import SyncError
+from app_paths import RESOURCE_ROOT, DATA_ROOT
 
 KEYS = {"ANILIST_CLIENT_ID", "ANILIST_CLIENT_SECRET", "ANILIST_REDIRECT_URI"}
 
@@ -60,9 +61,10 @@ def read_dotenv(path):
 
 
 def load_anilist_config(root=None, environ=None):
-    root = Path(root) if root is not None else Path(__file__).resolve().parent
+    legacy_root = Path(root) if root is not None else RESOURCE_ROOT
+    root = Path(root) if root is not None else DATA_ROOT
     environ = os.environ if environ is None else environ
-    legacy_path = root / "auth_config.json"
+    legacy_path = legacy_root / "auth_config.json"
     legacy = {}
     if legacy_path.exists():
         try:

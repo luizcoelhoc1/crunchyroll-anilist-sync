@@ -1,5 +1,7 @@
 # Crunchyroll → AniList — Python
 
+**Instalador MSI:** no repositório, execute `task compile` no Windows x64 com Task e Python 3.10–3.15 de 64 bits. O resultado fica em `dist/CrunchyrollAniListSync-1.6.0-x64.msi`; a versão pode ser alterada com `task compile VERSION=1.6.1`. Quem instala o MSI abre o app pelo menu Iniciar e não precisa instalar Python. Na versão instalada, o `.env` opcional e os relatórios ficam em `%LOCALAPPDATA%\CrunchyrollAniListSync`, preservados fora da pasta do programa. **Arquivo → Pasta da execução** abre a pasta de dados quando ainda não há execução. A configuração AniList também continua disponível pela interface.
+
 No Windows, os menus e controles de minimizar/maximizar/fechar compartilham uma única barra. Arraste pelo título para mover a janela ou dê dois cliques para maximizar/restaurar. As contas ficam fixas no rodapé da lateral: clique no avatar Crunchyroll para abrir seu login ou no avatar AniList para iniciar a autorização correspondente. Os menus e itens selecionados usam cores, sem molduras claras.
 
 **Interface escura:** os avatares e estados das contas ficam empilhados na lateral, junto aos atalhos de Revisão, Pendências e Progresso. Os menus **Arquivo**, **Contas**, **Sincronizar** e **Ajuda** ficam no topo. **Arquivo → Pasta da execução** abre os relatórios. **Opções avançadas** abre uma janela separada com os métodos alternativos de conexão. Reabra **Iniciar.cmd** depois de atualizar os arquivos para carregar a nova interface.

@@ -1,5 +1,11 @@
 # Validação — 02/11/2026
 
+## Compilação MSI
+
+`task compile` gerou `dist/CrunchyrollAniListSync-1.6.0-x64.msi` com cx_Freeze 8.7.4, Pillow 13.0.0 e Python 3.13.3 x64. A verificação abre o banco MSI somente para leitura, confere versão, código de atualização, atalho e arquivos essenciais e recusa arquivos de sessão/.env pessoal no pacote. O executável foi iniciado a partir de outra pasta, com `LOCALAPPDATA` temporário vazio, e fechado pela sua própria janela, com saída 0. O MSI não foi instalado no Windows durante essa validação; instalação, desinstalação e atualização entre versões não foram exercitadas.
+
+Os caminhos foram separados: recursos vêm da pasta do executável e os dados gravados ficam em `%LOCALAPPDATA%\CrunchyrollAniListSync`. O comportamento ao executar os fontes é preservado. **225 testes Python passaram, sem ignorados**, incluindo configuração e caminhos no modo instalado.
+
 Ambiente: Windows, Python 3.13.3. O código usa apenas a biblioteca padrão e declara compatibilidade com Python 3.10 ou superior; outras versões não foram executadas nesta validação.
 
 ## Interface escura — código atual

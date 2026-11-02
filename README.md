@@ -10,6 +10,10 @@ A interface usa tema escuro inspirado no VS Code, menus no topo e uma lateral co
 
 ## Usar no Windows
 
+Com o instalador gerado por `task compile`, abra o MSI e use o atalho **Crunchyroll - AniList Sync** no menu Iniciar. A instalação é por usuário e inclui Python, Tkinter e Pillow; não é necessário instalar Python no computador de destino.
+
+Para executar diretamente pelo código:
+
 1. Baixe ou clone o código atual e mantenha todos os arquivos juntos.
 2. Instale Python 3.10 ou superior com Tkinter.
 3. Abra **Iniciar.cmd**.
@@ -46,6 +50,24 @@ O login AniList usa autorização por código no navegador habitual. O Crunchyro
 - Preservação de notas, observações, privacidade, datas e progresso maior.
 
 ## Desenvolvimento
+
+Para gerar o instalador no Windows x64, tenha [Task](https://taskfile.dev/docs/installation) e Python 3.10–3.15 de 64 bits com Tkinter no `PATH`:
+
+```sh
+task compile
+```
+
+A tarefa cria/reutiliza `.venv-build`, instala as ferramentas de `requirements-build.txt` e usa [cx_Freeze](https://cx-freeze.readthedocs.io/en/stable/bdist_msi.html) para gerar **`dist/CrunchyrollAniListSync-1.6.0-x64.msi`**. Na primeira execução é necessário acesso à internet para baixar as dependências. Não exige WiX nem SDK .NET. O executável também fica em `build/app/CrunchyrollAniListSync.exe` e precisa dos arquivos ao seu lado.
+
+```sh
+task compile VERSION=1.6.1
+```
+
+Use versões `X.Y.Z` crescentes para atualizações do instalador. A tarefa confere a estrutura do MSI e abre/fecha uma instância com dados temporários vazios; não instala o MSI nem usa logins reais durante essa verificação. Feche uma cópia de teste de `build/app` antes de recompilar.
+
+Somente os arquivos públicos listados em `packaging/windows.py` entram no pacote. O `.env` pessoal, sessões e relatórios não são incluídos. Na versão instalada, configuração `.env`, logs e relatórios ficam em **`%LOCALAPPDATA%\CrunchyrollAniListSync`**; o modelo `.env.example` fica na pasta de instalação. As sessões continuam protegidas na mesma pasta de dados já usada pelo programa. Executando pelo código, o `.env` e a pasta `execucoes` continuam na raiz do projeto.
+
+Testes de desenvolvimento:
 
 ```sh
 python -m unittest discover -s tests -v

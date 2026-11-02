@@ -19,7 +19,7 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 
-ROOT = Path(__file__).resolve().parent
+from app_paths import RESOURCE_ROOT as ROOT, DATA_ROOT
 AL_API = "https://graphql.anilist.co"
 AL_WEB = "https://anilist.co/graphql"
 CR_ORIGIN = "https://www.crunchyroll.com"
@@ -1128,7 +1128,7 @@ def snapshot_entries(data):
 
 
 def new_run_folder():
-    return ROOT / "execucoes" / datetime.now().strftime("%Y%m%d-%H%M%S-%f")
+    return DATA_ROOT / "execucoes" / datetime.now().strftime("%Y%m%d-%H%M%S-%f")
 
 
 def credentials(env_name, label):
