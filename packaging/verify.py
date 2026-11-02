@@ -42,6 +42,9 @@ user.GetWindowThreadProcessId.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes
 user.GetWindowTextW.argtypes = [wintypes.HWND, wintypes.LPWSTR, ctypes.c_int]
 user.IsWindowVisible.argtypes = [wintypes.HWND]
 user.PostMessageW.argtypes = [wintypes.HWND, wintypes.UINT, ctypes.c_size_t, ctypes.c_ssize_t]
+user.GetWindowRect.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.RECT)]
+user.SetWindowPos.argtypes = [wintypes.HWND, wintypes.HWND, ctypes.c_int, ctypes.c_int,
+                              ctypes.c_int, ctypes.c_int, wintypes.UINT]
 callback_type = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
 user.EnumWindows.argtypes = [callback_type, wintypes.LPARAM]
 
@@ -82,6 +85,18 @@ with tempfile.TemporaryDirectory(prefix="cral-msi-check-") as folder:
                 detail = (out + err).decode("utf-8", errors="replace")[-2500:]
             raise RuntimeError(f"O executável não abriu a janela principal (código {process.poll()}, "
                                f"janelas {titles}). {detail}")
+        # Exercise the native move loop while the app's Tk timers keep running.
+        hwnd = windows[0]
+        rect = wintypes.RECT()
+        assert user.GetWindowRect(hwnd, ctypes.byref(rect))
+        position = (rect.left & 0xffff) | ((rect.top & 0xffff) << 16)
+        assert user.PostMessageW(hwnd, 0x00A1, 2, position)
+        for step in range(1, 7):
+            time.sleep(.08)
+            assert process.poll() is None, "O executável encerrou durante o movimento"
+            assert user.SetWindowPos(hwnd, None, rect.left + step * 5, rect.top + step * 3,
+                                      0, 0, 0x0015), "Não foi possível mover a janela de teste"
+        assert user.PostMessageW(hwnd, 0x001F, 0, 0)  # WM_CANCELMODE
         # Only close the test process's verified main window.
         time.sleep(.5)
         user.PostMessageW(windows[0], 0x0010, 0, 0)
@@ -91,4 +106,4 @@ with tempfile.TemporaryDirectory(prefix="cral-msi-check-") as folder:
             process.terminate()
             process.wait(timeout=10)
 
-print(f"MSI e inicialização conferidos: {installer.name} ({installer.stat().st_size / 1024**2:.1f} MiB)")
+print(f"MSI, inicialização e movimento conferidos: {installer.name} ({installer.stat().st_size / 1024**2:.1f} MiB)")

@@ -1,5 +1,13 @@
 # Validação — 02/11/2026
 
+## Correção do crash ao arrastar a janela
+
+O arrasto pela barra integrada reproduziu um encerramento fatal `PyEval_RestoreThread`, com código Windows `0xC0000409`. A chamada síncrona `SendMessageW` iniciava o movimento dentro do callback Python do Tkinter; eventos durante esse movimento podiam voltar ao Tk sem o estado de thread Python salvo. O arrasto agora usa [PostMessageW](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-postmessagew), que coloca a mensagem na fila e permite retornar ao Tcl antes de começar o movimento. A mensagem também recebe as coordenadas de tela do clique, incluindo posições negativas em outros monitores.
+
+**228 testes Python passaram, sem ignorados.** Os três novos testes cobrem envio pela fila, coordenadas negativas, ausência de janela nativa e uma janela Windows em subprocesso com pedido de arrasto, movimento programático e temporizador Tk. A reprodução original foi intermitente; o teste do envio pela fila impede a reintrodução da chamada síncrona. Nenhuma conta real foi acessada.
+
+`task compile VERSION=1.6.1` gerou `dist/CrunchyrollAniListSync-1.6.1-x64.msi` (13,8 MiB). A verificação do pacote passou e o executável abriu com dados temporários vazios, recebeu o pedido nativo de arrasto, foi movido seis vezes e fechou com saída 0. O instalador não foi instalado nesta validação.
+
 ## Compilação MSI
 
 `task compile` gerou `dist/CrunchyrollAniListSync-1.6.0-x64.msi` com cx_Freeze 8.7.4, Pillow 13.0.0 e Python 3.13.3 x64. A verificação abre o banco MSI somente para leitura, confere versão, código de atualização, atalho e arquivos essenciais e recusa arquivos de sessão/.env pessoal no pacote. O executável foi iniciado a partir de outra pasta, com `LOCALAPPDATA` temporário vazio, e fechado pela sua própria janela, com saída 0. O MSI não foi instalado no Windows durante essa validação; instalação, desinstalação e atualização entre versões não foram exercitadas.

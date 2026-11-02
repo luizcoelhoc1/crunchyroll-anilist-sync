@@ -40,7 +40,10 @@ class IntegratedTitlebar:
     def drag(self, event):
         if self.hwnd:
             self.user.ReleaseCapture()
-            self.user.SendMessageW(self.hwnd, 0x00A1, 2, 0)  # Native caption drag / snap.
+            # Return to Tcl before Windows enters its modal move loop. SendMessage
+            # here can reenter Tk callbacks with no saved Python thread state.
+            position = (event.x_root & 0xffff) | ((event.y_root & 0xffff) << 16)
+            self.user.PostMessageW(self.hwnd, 0x00A1, 2, position)  # Native caption drag / snap.
 
     def install(self):
         if self.original:
@@ -64,8 +67,10 @@ class IntegratedTitlebar:
         user.MonitorFromWindow.argtypes = [pointer, wintypes.DWORD]
         user.MonitorFromWindow.restype = pointer
         user.GetMonitorInfoW.argtypes = [pointer, pointer]
-        user.SendMessageW.argtypes = [pointer, wintypes.UINT, ctypes.c_size_t, ctypes.c_ssize_t]
-        user.SendMessageW.restype = ctypes.c_ssize_t
+        user.ReleaseCapture.argtypes = []
+        user.ReleaseCapture.restype = wintypes.BOOL
+        user.PostMessageW.argtypes = [pointer, wintypes.UINT, ctypes.c_size_t, ctypes.c_ssize_t]
+        user.PostMessageW.restype = wintypes.BOOL
         self.hwnd = user.GetParent(self.root.winfo_id())
 
         class MonitorInfo(ctypes.Structure):
