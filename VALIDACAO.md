@@ -1,5 +1,11 @@
 # Validação — 02/11/2026
 
+## Publicação automática pelo task compile
+
+`task compile` agora compila, verifica, cria o commit das alterações não ignoradas e a tag, envia ambos para `origin` e publica a release com o MSI e `SHA256SUMS.txt`. A publicação usa a [API de releases do GitHub](https://docs.github.com/en/rest/releases/releases) e confere o SHA-256 dos anexos antes de tornar a release pública. `PUBLISH=false` mantém somente o build local. Um envio interrompido é retomado na execução seguinte usando `build/pending-release.json`, sem novo incremento.
+
+**247 testes Python passaram, sem ignorados.** Os dez novos testes incluem Git real com remoto temporário, correspondência do código e da versão na tag, arquivos novos e removidos, `.env` ignorado, falha de autenticação antes da compilação, mudança do código durante o build, instalador adulterado, anexo divergente e retomada após resposta perdida no upload sem repetir build, commit ou anexo. Uma execução real do comando registrou e publicou `v1.6.3` com sucesso.
+
 ## Release v1.6.2
 
 A validação final passou com **237 testes Python e 6 testes JavaScript**, sem testes ignorados. O instalador MSI foi recompilado na versão fixa `1.6.2` com a documentação da release, preservando `VERSION` e a versão solicitada para a tag. A conferência do MSI e o teste de inicialização, movimento e fechamento do executável passaram.

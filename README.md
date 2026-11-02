@@ -6,7 +6,7 @@ A interface usa tema escuro inspirado no VS Code, menus no topo e uma lateral co
 
 **Código atual:** AniList no navegador habitual, sessões protegidas no Windows e renovação do Crunchyroll. [Instruções completas](LEIA-ME.md) · [Usar o Chrome já conectado](CONEXAO_CHROME.md)
 
-Última versão publicada: [1.6.2](https://github.com/luizcoelhoc1/crunchyroll-anilist-sync/releases/tag/v1.6.2), com instalador MSI para Windows x64. Veja as [novidades da versão](ATUALIZACAO_1_6.md).
+Baixe o instalador MSI para Windows x64 na [release mais recente](https://github.com/luizcoelhoc1/crunchyroll-anilist-sync/releases/latest). Veja o [histórico de releases](https://github.com/luizcoelhoc1/crunchyroll-anilist-sync/releases) e as [novidades da série 1.6](ATUALIZACAO_1_6.md).
 
 ## Usar no Windows
 
@@ -51,13 +51,23 @@ O login AniList usa autorização por código no navegador habitual. O Crunchyro
 
 ## Desenvolvimento
 
-Para gerar o instalador no Windows x64, tenha [Task](https://taskfile.dev/docs/installation) e Python 3.10–3.15 de 64 bits com Tkinter no `PATH`:
+Para compilar e publicar no Windows x64, tenha [Task](https://taskfile.dev/docs/installation), Git e Python 3.10–3.15 de 64 bits com Tkinter no `PATH`. O remoto `origin` deve apontar para o GitHub, e a branch local deve estar atualizada com a remota. Use a autenticação já configurada no Git ou defina `GH_TOKEN`/`GITHUB_TOKEN` com permissão **Contents: write** no repositório:
 
 ```sh
 task compile
 ```
 
-A tarefa incrementa automaticamente o último número da versão registrada em [`VERSION`](VERSION): por exemplo, `1.6.1` vira `1.6.2`. Ela cria/reutiliza `.venv-build`, instala as ferramentas de `requirements-build.txt` e usa [cx_Freeze](https://cx-freeze.readthedocs.io/en/stable/bdist_msi.html) para gerar **`dist/CrunchyrollAniListSync-X.Y.Z-x64.msi`**. A nova versão só é salva em `VERSION` após compilar e verificar o pacote com sucesso. Na primeira execução é necessário acesso à internet para baixar as dependências. Não exige WiX nem SDK .NET. O executável também fica em `build/app/CrunchyrollAniListSync.exe` e precisa dos arquivos ao seu lado.
+A tarefa incrementa automaticamente o último número da versão registrada em [`VERSION`](VERSION), compila e verifica **`dist/CrunchyrollAniListSync-X.Y.Z-x64.msi`**, salva a nova versão, cria um commit com as alterações não ignoradas pelo Git e cria a tag `vX.Y.Z`. Depois envia a branch e a tag para `origin`, cria a release com notas automáticas e anexa o MSI e `SHA256SUMS.txt`. A release só se torna pública depois de conferir os anexos. A publicação usa a [API oficial de releases do GitHub](https://docs.github.com/en/rest/releases/releases) e não exige GitHub CLI.
+
+Se o envio falhar, execute `task compile` novamente: a tarefa retoma a mesma versão a partir de `build/pending-release.json`, sem recompilar ou aumentar a versão. Preserve o código e o instalador até concluir essa publicação. Alterações no código durante a compilação interrompem a publicação para preservar a correspondência entre o instalador e a tag. Tags e anexos existentes não são sobrescritos.
+
+Para gerar somente o build local, sem commit, tag ou publicação:
+
+```sh
+task compile PUBLISH=false
+```
+
+Os dois modos criam/reutilizam `.venv-build` e instalam as ferramentas de `requirements-build.txt`. A nova versão só é salva em `VERSION` após compilar e verificar o pacote com sucesso. Na primeira execução é necessário acesso à internet para baixar as dependências. Não exige WiX nem SDK .NET. O executável também fica em `build/app/CrunchyrollAniListSync.exe` e precisa dos arquivos ao seu lado.
 
 Para escolher uma versão específica, maior que a atual:
 
@@ -65,7 +75,7 @@ Para escolher uma versão específica, maior que a atual:
 task compile VERSION=1.7.0
 ```
 
-Inclua o arquivo `VERSION` atualizado no commit para preservar a sequência em outros clones. A tarefa confere a estrutura do MSI e abre/fecha uma instância com dados temporários vazios; não instala o MSI nem usa logins reais durante essa verificação. Feche uma cópia de teste de `build/app` antes de recompilar. Compilações simultâneas são recusadas; se o processo for encerrado à força, remova `build/.compile.lock` depois de conferir que ele terminou.
+No modo local, inclua o arquivo `VERSION` atualizado no seu próximo commit. A tarefa confere a estrutura do MSI e abre/fecha uma instância com dados temporários vazios; não instala o MSI nem usa logins reais durante essa verificação. Feche uma cópia de teste de `build/app` antes de recompilar. Compilações simultâneas são recusadas; se o processo for encerrado à força, remova `build/.compile.lock` depois de conferir que ele terminou, preservando `build/pending-release.json` para retomar um envio pendente.
 
 Somente os arquivos públicos listados em `packaging/windows.py` entram no pacote. O `.env` pessoal, sessões e relatórios não são incluídos. Na versão instalada, configuração `.env`, logs e relatórios ficam em **`%LOCALAPPDATA%\CrunchyrollAniListSync`**; o modelo `.env.example` fica na pasta de instalação. As sessões continuam protegidas na mesma pasta de dados já usada pelo programa. Executando pelo código, o `.env` e a pasta `execucoes` continuam na raiz do projeto.
 

@@ -16,6 +16,13 @@ def write_version(project, version):
     temporary.replace(version_file)
 
 
+def build_and_verify(project, environment):
+    subprocess.run([sys.executable, str(project / "packaging" / "windows.py"),
+                    "--quiet", "bdist_msi"], cwd=project, env=environment, check=True)
+    subprocess.run([sys.executable, str(project / "packaging" / "verify.py")],
+                   cwd=project, env=environment, check=True)
+
+
 def compile_installer(project=PROJECT, requested="", publish=False):
     build_dir = project / "build"
     build_dir.mkdir(exist_ok=True)
@@ -53,10 +60,7 @@ def compile_installer(project=PROJECT, requested="", publish=False):
             source = github_release.source_digest(project)
         environment = dict(os.environ, APP_BUILD_VERSION=version)
         print(f"Compilando instalador {version}...", flush=True)
-        subprocess.run([sys.executable, str(project / "packaging" / "windows.py"),
-                        "--quiet", "bdist_msi"], cwd=project, env=environment, check=True)
-        subprocess.run([sys.executable, str(project / "packaging" / "verify.py")],
-                       cwd=project, env=environment, check=True)
+        build_and_verify(project, environment)
         if publish:
             if github_release.source_digest(project) != source:
                 raise RuntimeError("O código mudou durante a compilação. Execute task compile novamente.")
