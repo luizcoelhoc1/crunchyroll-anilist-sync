@@ -1,17 +1,18 @@
-"""Build Windows x64: task compile [VERSION=1.6.0]."""
+"""Build Windows x64: task compile [VERSION=X.Y.Z]."""
 import os
 from pathlib import Path
-import re
 import shutil
 import sys
 
 from cx_Freeze import Executable, setup
+from build_version import parse_version, read_version
 
 PROJECT = Path(__file__).resolve().parents[1]
-VERSION = os.environ.get("APP_BUILD_VERSION", "1.6.0")
-if not re.fullmatch(r"\d{1,3}\.\d{1,3}\.\d{1,5}", VERSION) or any(
-        int(part) > limit for part, limit in zip(VERSION.split("."), (255, 255, 65535))):
-    raise SystemExit("VERSION deve ter o formato X.Y.Z (limites MSI: 255.255.65535).")
+VERSION = os.environ.get("APP_BUILD_VERSION") or read_version()
+try:
+    parse_version(VERSION)
+except ValueError as exc:
+    raise SystemExit(str(exc)) from None
 if sys.platform != "win32" or sys.maxsize <= 2**32:
     raise SystemExit("Compile usando Python 64 bits no Windows.")
 os.chdir(PROJECT)
@@ -21,6 +22,7 @@ ASSETS = [
     "mapeamentos_lumimao.json", "auth_config.json", ".env.example",
     "LEIA-ME.md", "README.md", "CONEXAO_CHROME.md",
     "ATUALIZACAO_1_2.md", "ATUALIZACAO_1_3.md", "ATUALIZACAO_1_4.md", "ATUALIZACAO_1_5.md",
+    "ATUALIZACAO_1_6.md",
     "extensao_chrome/background.mjs", "extensao_chrome/protocol.mjs",
     "extensao_chrome/connect.js", "extensao_chrome/manifest.json",
 ]

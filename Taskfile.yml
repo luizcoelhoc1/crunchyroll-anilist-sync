@@ -1,7 +1,7 @@
 version: '3'
 
 vars:
-  VERSION: '1.6.0'
+  VERSION: ''
 
 tasks:
   compile:
@@ -15,8 +15,7 @@ tasks:
     cmds:
       - task: _build-env
       - .venv-build/Scripts/python.exe -m pip install --disable-pip-version-check -r requirements-build.txt
-      - .venv-build/Scripts/python.exe packaging/windows.py --quiet bdist_msi
-      - .venv-build/Scripts/python.exe packaging/verify.py
+      - .venv-build/Scripts/python.exe packaging/build.py
 
   _build-env:
     internal: true

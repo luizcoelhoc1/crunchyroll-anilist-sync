@@ -8,9 +8,10 @@ import tempfile
 import time
 
 import msilib
+from build_version import read_version
 
 PROJECT = Path(__file__).resolve().parents[1]
-version = os.environ.get("APP_BUILD_VERSION", "1.6.0")
+version = os.environ.get("APP_BUILD_VERSION") or read_version()
 installer = PROJECT / "dist" / f"CrunchyrollAniListSync-{version}-x64.msi"
 database = msilib.OpenDatabase(str(installer), msilib.MSIDBOPEN_READONLY)
 

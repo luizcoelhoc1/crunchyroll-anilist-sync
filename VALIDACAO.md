@@ -1,5 +1,15 @@
 # Validação — 02/11/2026
 
+## Release v1.6.2
+
+A validação final passou com **237 testes Python e 6 testes JavaScript**, sem testes ignorados. O instalador MSI foi recompilado na versão fixa `1.6.2` com a documentação da release, preservando `VERSION` e a versão solicitada para a tag. A conferência do MSI e o teste de inicialização, movimento e fechamento do executável passaram.
+
+## Versão automática no task compile
+
+O arquivo `VERSION` centraliza a última versão compilada com sucesso. `task compile` incrementa a correção e passa o mesmo número ao compilador e ao verificador; o arquivo só é atualizado depois das duas etapas. Uma versão explícita precisa ser maior que a atual. Uma trava impede compilações simultâneas de alterar a mesma pasta e versão.
+
+**9 testes de versionamento passaram**, cobrindo incremento numérico, versão explícita, limites MSI, falha na compilação/verificação preservando a versão anterior, atualização após sucesso e recusa de concorrência. Uma compilação concorrente real foi recusada pela trava enquanto a outra terminou e registrou `1.6.2`. O MSI `dist/CrunchyrollAniListSync-1.6.2-x64.msi` passou pela conferência de estrutura, inicialização, movimento da janela e fechamento com dados temporários vazios. Nenhum MSI foi instalado nesta validação.
+
 ## Correção do crash ao arrastar a janela
 
 O arrasto pela barra integrada reproduziu um encerramento fatal `PyEval_RestoreThread`, com código Windows `0xC0000409`. A chamada síncrona `SendMessageW` iniciava o movimento dentro do callback Python do Tkinter; eventos durante esse movimento podiam voltar ao Tk sem o estado de thread Python salvo. O arrasto agora usa [PostMessageW](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-postmessagew), que coloca a mensagem na fila e permite retornar ao Tcl antes de começar o movimento. A mensagem também recebe as coordenadas de tela do clique, incluindo posições negativas em outros monitores.
