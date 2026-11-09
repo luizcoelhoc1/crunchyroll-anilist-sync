@@ -36,6 +36,24 @@ assert {"crunchyrollanilistsync.exe", "mapeamentos_lumimao.json", "leia-me.md",
         "manifest.json", "background.mjs", "protocol.mjs", "connect.js", ".env.example"} <= names
 assert not names.intersection({".env", "sessions.dat", "client-credentials.dat", "historico-crunchyroll.json"})
 assert rows("Shortcut", ["Shortcut"]), "Falta o atalho do menu Iniciar"
+assert "SETUP_CHROME_EXTENSION" not in properties, "A extensão deve vir desmarcada"
+controls = rows("Control", ["Dialog_", "Control", "Type", "Property"])
+assert ("ExitDialog", "ChromeExtension", "CheckBox", "SETUP_CHROME_EXTENSION") in controls
+actions = {action: (kind, source, target) for action, kind, source, target
+           in rows("CustomAction", ["Action", "Type", "Source", "Target"])}
+assert actions["SetupChromeExtension"] == (
+    "226", "TARGETDIR", '"[TARGETDIR]CrunchyrollAniListSync.exe" --install-chrome-extension')
+events = rows("ControlEvent", ["Dialog_", "Control_", "Event", "Argument", "Condition", "Ordering"])
+assert ("ExitDialog", "Finish", "DoAction", "SetupChromeExtension",
+        'SETUP_CHROME_EXTENSION=1 AND NOT (REMOVE="ALL" OR MaintenanceForm_Action="Remove")', "0") in events
+assert any(dialog == "ExitDialog" and control == "Finish" and event == "EndDialog" and order == "1"
+           for dialog, control, event, argument, condition, order in events)
+for table in ("InstallExecuteSequence", "InstallUISequence"):
+    assert ("SetupChromeExtension",) not in rows(table, ["Action"]), "Não abrir Chrome em instalação silenciosa"
+conditions = rows("ControlCondition", ["Dialog_", "Control_", "Action", "Condition"])
+for control in ("ChromeExtension", "ChromeExtensionHelp"):
+    assert ("ExitDialog", control, "Hide", 'REMOVE="ALL" OR MaintenanceForm_Action="Remove"') in conditions
+
 database.Close()
 
 user = ctypes.WinDLL("user32", use_last_error=True)

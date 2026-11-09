@@ -2,11 +2,15 @@
 
 No código atual, este método fica em **Opções avançadas → Conectar pela extensão**. O botão principal **Entrar no Crunchyroll** faz uma tentativa de login direto por e-mail/senha no aplicativo, sem navegador, extensão ou configuração de depuração. **Autorizar AniList** usa o navegador habitual, com OAuth oficial. Veja [LEIA-ME.md](LEIA-ME.md). Na versão publicada 1.5, os botões ainda se chamam **Instalar extensão (uma vez)** e **Conectar pelo Chrome**.
 
-1. Extraia o ZIP inteiro para uma pasta fixa.
-2. Abra **Iniciar.cmd**.
+Pelo MSI, marque **Configurar extensão no Chrome (opcional)** na tela final e conclua. A opção vem desmarcada e abre o Chrome, a pasta instalada e as instruções. Termine os passos 4 a 6 abaixo. O Chrome exige que você carregue a extensão local pelos controles do navegador.
+
+Para configurar depois ou executando pelo código:
+
+1. Instale o MSI ou extraia o ZIP inteiro para uma pasta fixa.
+2. Abra o atalho **Crunchyroll - AniList Sync** ou, pelo código, **Iniciar.cmd**.
 3. Abra **Opções avançadas → Instalar extensão (opcional)**. O programa abre a pasta da extensão e a página de extensões do Chrome.
 4. No Chrome, em **chrome://extensions**, ative **Modo do desenvolvedor**.
-5. Clique em **Carregar sem compactação** e selecione a pasta **extensao_chrome** que veio no ZIP.
+5. Clique em **Carregar sem compactação** e selecione a pasta **extensao_chrome** aberta pelo programa (na pasta de instalação ou no código extraído).
 6. Confira que a extensão **Crunchyroll → AniList — conexão local** ficou ativada.
 
 Instale no mesmo perfil do Chrome em que você já usa Crunchyroll e AniList. Mantenha a pasta no lugar; o Chrome carrega a extensão a partir dela.

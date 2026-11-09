@@ -6,6 +6,7 @@ import sys
 
 from cx_Freeze import Executable, setup
 from build_version import parse_version, read_version
+from msi_options import ExtensionInstaller
 
 PROJECT = Path(__file__).resolve().parents[1]
 VERSION = os.environ.get("APP_BUILD_VERSION") or read_version()
@@ -36,6 +37,7 @@ if app_dir.exists():
     shutil.rmtree(app_dir)
 
 setup(
+    cmdclass={"bdist_msi": ExtensionInstaller},
     name="CrunchyrollAniListSync",
     version=VERSION,
     description="Crunchyroll - AniList Sync",

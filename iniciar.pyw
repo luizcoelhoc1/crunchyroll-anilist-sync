@@ -7,8 +7,12 @@ sys.path.insert(0, str(ROOT))
 try:
     if sys.version_info < (3, 10):
         raise RuntimeError("E necessario Python 3.10 ou superior.")
-    from interface import start_gui
-    start_gui()
+    if "--install-chrome-extension" in sys.argv[1:]:
+        from extension_setup import show_extension_setup
+        show_extension_setup()
+    else:
+        from interface import start_gui
+        start_gui()
 except Exception:
     import traceback
     details = traceback.format_exc()

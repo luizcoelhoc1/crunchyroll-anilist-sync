@@ -14,6 +14,7 @@ from oauth_login import login_anilist, open_regular_browser
 from oauth_service import login_via_service
 from app_config import load_anilist_config
 from chrome_profile import ChromeSetupRequired, open_connection_settings
+from extension_setup import show_extension_setup
 from session_store import SessionStore, CrunchyrollSession, ClientSecretStore
 from avatars import avatar_url, avatar_photo, download_avatar
 from plan_editor import save_review
@@ -622,22 +623,7 @@ class Window:
     def install_extension(self):
         if self.busy or self.bridge:
             return
-        folder = ROOT / "extensao_chrome"
-        try:
-            if os.name == "nt":
-                os.startfile(folder)
-            else:
-                import webbrowser
-                webbrowser.open(folder.as_uri())
-            open_chrome("chrome://extensions")
-        except (SyncError, OSError):
-            pass
-        messagebox.showinfo("Instalar extensão uma vez",
-                            "No Chrome, abra chrome://extensions.\n"
-                            "Ative Modo do desenvolvedor e clique em Carregar sem compactação.\n"
-                            "Selecione a pasta extensao_chrome que veio no ZIP.\n\n"
-                            "Depois clique em Opções avançadas → Conectar pela extensão no programa.\n\n"
-                            "Pasta da extensão:\n" + str(folder))
+        show_extension_setup(parent=self.root)
 
     def paste(self, service):
         if self.busy or self.logged_in:

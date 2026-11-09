@@ -12,6 +12,8 @@ Baixe o instalador MSI para Windows x64 na [release mais recente](https://github
 
 Com o instalador gerado por `task compile`, abra o MSI e use o atalho **Crunchyroll - AniList Sync** no menu Iniciar. A instalação é por usuário e inclui Python, Tkinter e Pillow; não é necessário instalar Python no computador de destino.
 
+Na tela final do MSI, **Configurar extensão no Chrome (opcional)** vem desmarcado. Se marcar e concluir, o instalador abre o Chrome, a pasta da extensão e um guia para carregá-la. A confirmação é feita no Chrome, ativando **Modo do desenvolvedor → Carregar sem compactação**. Você também pode fazer isso depois em **Opções avançadas → Instalar extensão (opcional)** no aplicativo. A extensão é necessária apenas para o método **Conectar pela extensão**.
+
 Para executar diretamente pelo código:
 
 1. Baixe ou clone o código atual e mantenha todos os arquivos juntos.
